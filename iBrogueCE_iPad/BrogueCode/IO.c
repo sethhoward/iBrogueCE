@@ -2574,7 +2574,7 @@ void executeKeystroke(signed long keystroke, boolean controlKey, boolean shiftKe
             }*/
             // DEBUG displayLoops();
             // DEBUG displayChokeMap();
-            DEBUG; displayMachines();
+            DEBUG displayMachines();
             //DEBUG displayWaypoints();
             // DEBUG {displayGrid(safetyMap); displayMoreSign(); displayLevel();}
             // parseFile();

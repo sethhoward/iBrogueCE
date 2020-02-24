@@ -448,7 +448,7 @@ void initializeRogue(unsigned long seed) {
 
     recalculateEquipmentBonuses();
 
-    DEBUG; {
+    DEBUG {
         theItem = generateItem(RING, RING_CLAIRVOYANCE);
         theItem->enchant1 = max(DROWS, DCOLS);
         theItem->flags &= ~ITEM_CURSED;
