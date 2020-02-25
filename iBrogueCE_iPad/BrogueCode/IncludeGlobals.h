@@ -43,7 +43,7 @@ extern item *floorItems;
 extern item *packItems;
 extern item *monsterItemsHopper;
 extern short numberOfWaypoints;
-//extern short randClumpedRange(short lowerBound, short upperBound, short clumpFactor);
+
 extern char displayedMessage[MESSAGE_LINES][COLS];
 extern boolean messageConfirmed[3];
 extern char combatText[COLS];

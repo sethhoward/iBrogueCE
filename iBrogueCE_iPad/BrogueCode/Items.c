@@ -841,6 +841,10 @@ void conflateItemCharacteristics(item *newItem, item *oldItem) {
     if (oldItem->strengthRequired < newItem->strengthRequired) {
         newItem->strengthRequired = oldItem->strengthRequired;
     }
+    // Copy the inscription.
+    if (oldItem->inscription && !newItem->inscription) {
+        strcpy(newItem->inscription, oldItem->inscription);
+    }
     // Keep track of origin depth only if every item in the stack has the same origin depth.
     if (oldItem->originDepth <= 0 || newItem->originDepth != oldItem->originDepth) {
         newItem->originDepth = 0;
@@ -1371,17 +1375,15 @@ void itemName(item *theItem, char *root, boolean includeDetails, boolean include
                 if (theItem->flags & ITEM_RUNIC) {
                     if ((theItem->flags & ITEM_RUNIC_IDENTIFIED) || rogue.playbackOmniscience) {
                         if (theItem->enchant2 == W_SLAYING) {
-                            sprintf(buf, "%s of %s slaying%s",
+                            sprintf(root, "%s of %s slaying%s",
                                     root,
                                     monsterClassCatalog[theItem->vorpalEnemy].name,
                                     grayEscapeSequence);
-                            strcpy(root, buf);
                         } else {
-                            sprintf(buf, "%s of %s%s",
+                            sprintf(root, "%s of %s%s",
                                     root,
                                     weaponRunicNames[theItem->enchant2],
                                     grayEscapeSequence);
-                            strcpy(root, buf);
                         }
                     } else if (theItem->flags & (ITEM_IDENTIFIED | ITEM_RUNIC_HINTED)) {
                         if (grayEscapeSequence[0]) {
@@ -1390,8 +1392,7 @@ void itemName(item *theItem, char *root, boolean includeDetails, boolean include
                         strcat(root, " (unknown runic)");
                     }
                 }
-                sprintf(buf, "%s%s <%i>", root, grayEscapeSequence, theItem->strengthRequired);
-                strcpy(root, buf);
+                sprintf(root, "%s%s <%i>", root, grayEscapeSequence, theItem->strengthRequired);
             }
             break;
         case ARMOR:
@@ -1402,11 +1403,9 @@ void itemName(item *theItem, char *root, boolean includeDetails, boolean include
                     && ((theItem->flags & ITEM_RUNIC_IDENTIFIED)
                         || rogue.playbackOmniscience)) {
                         if (theItem->enchant2 == A_IMMUNITY) {
-                            sprintf(buf, "%s of %s immunity", root, monsterClassCatalog[theItem->vorpalEnemy].name);
-                            strcpy(root, buf);
+                            sprintf(root, "%s of %s immunity", root, monsterClassCatalog[theItem->vorpalEnemy].name);
                         } else {
-                            sprintf(buf, "%s of %s", root, armorRunicNames[theItem->enchant2]);
-                            strcpy(root, buf);
+                            sprintf(root, "%s of %s", root, armorRunicNames[theItem->enchant2]);
                         }
                     }
 
@@ -1424,8 +1423,7 @@ void itemName(item *theItem, char *root, boolean includeDetails, boolean include
                     }
                     strcpy(root, buf);
                 } else {
-                    sprintf(buf, "%s%s <%i>", root, grayEscapeSequence, theItem->strengthRequired);
-                    strcpy(root, buf);
+                    sprintf(root, "%s%s <%i>", root, grayEscapeSequence, theItem->strengthRequired);
                 }
 
                 if ((theItem->flags & ITEM_RUNIC)
@@ -1490,23 +1488,20 @@ void itemName(item *theItem, char *root, boolean includeDetails, boolean include
             }
             if (includeDetails) {
                 if (theItem->flags & (ITEM_IDENTIFIED | ITEM_MAX_CHARGES_KNOWN) || rogue.playbackOmniscience) {
-                    sprintf(buf, "%s%s [%i]",
+                    sprintf(root, "%s%s [%i]",
                             root,
                             grayEscapeSequence,
                             theItem->charges);
-                    strcpy(root, buf);
                 } else if (theItem->enchant2 > 2) {
-                    sprintf(buf, "%s%s (used %i times)",
+                    sprintf(root, "%s%s (used %i times)",
                             root,
                             grayEscapeSequence,
                             theItem->enchant2);
-                    strcpy(root, buf);
                 } else if (theItem->enchant2) {
-                    sprintf(buf, "%s%s (used %s)",
+                    sprintf(root, "%s%s (used %s)",
                             root,
                             grayEscapeSequence,
                             (theItem->enchant2 == 2 ? "twice" : "once"));
-                    strcpy(root, buf);
                 }
             }
             break;
@@ -1528,11 +1523,9 @@ void itemName(item *theItem, char *root, boolean includeDetails, boolean include
             }
             if (includeDetails) {
                 if ((theItem->flags & ITEM_IDENTIFIED) || rogue.playbackOmniscience) {
-                    sprintf(buf, "%s%s [%i/%i]", root, grayEscapeSequence, theItem->charges, theItem->enchant1);
-                    strcpy(root, buf);
+                    sprintf(root, "%s%s [%i/%i]", root, grayEscapeSequence, theItem->charges, theItem->enchant1);
                 } else if (theItem->flags & ITEM_MAX_CHARGES_KNOWN) {
-                    sprintf(buf, "%s%s [?/%i]", root, grayEscapeSequence, theItem->enchant1);
-                    strcpy(root, buf);
+                    sprintf(root, "%s%s [?/%i]", root, grayEscapeSequence, theItem->enchant1);
                 }
             }
             break;
@@ -2631,7 +2624,7 @@ char displayInventory(unsigned short categoryMask,
     cellDisplayBuffer dbuf[COLS][ROWS];
     cellDisplayBuffer rbuf[COLS][ROWS];
     brogueButton buttons[50] = {{{0}}};
-    short actionKey = -1;
+    short actionKey;
     color darkItemColor;
 
     char whiteColorEscapeSequence[20],
@@ -3317,7 +3310,7 @@ void aggravateMonsters(short distance, short x, short y, const color *flashColor
 short getLineCoordinates(short listOfCoordinates[][2], const short originLoc[2], const short targetLoc[2]) {
     fixpt targetVector[2], error[2], largerTargetComponent;
     short currentVector[2], previousVector[2], quadrantTransform[2], i;
-    short currentLoc[2];
+    short currentLoc[2], previousLoc[2];
     short cellNumber = 0;
 
     if (originLoc[0] == targetLoc[0] && originLoc[1] == targetLoc[1]) {
@@ -3344,6 +3337,8 @@ short getLineCoordinates(short listOfCoordinates[][2], const short originLoc[2],
 
     do {
         for (i=0; i<= 1; i++) {
+
+            previousLoc[i] = currentLoc[i];
 
             currentVector[i] += targetVector[i] / FP_FACTOR;
             error[i] += (targetVector[i] == FP_FACTOR ? 0 : targetVector[i]);
@@ -4541,7 +4536,7 @@ void detonateBolt(bolt *theBolt, creature *caster, short x, short y, boolean *au
 // returns whether the bolt effect should autoID any staff or wand it came from, if it came from a staff or wand
 boolean zap(short originLoc[2], short targetLoc[2], bolt *theBolt, boolean hideDetails) {
     short listOfCoordinates[MAX_BOLT_LENGTH][2];
-    short i, j, k, x, y, x2, y2, numCells, blinkDistance = 0, boltLength, initialBoltLength, lights[DCOLS][DROWS][3];
+    short i, j, k, x, y, x2, y2, numCells, blinkDistance, boltLength, initialBoltLength, lights[DCOLS][DROWS][3];
     creature *monst = NULL, *shootingMonst;
     char buf[COLS], monstName[COLS];
     boolean autoID = false;
@@ -5732,7 +5727,7 @@ void throwCommand(item *theItem) {
     item *thrownItem;
     char buf[COLS], theName[COLS];
     unsigned char command[10];
-    short maxDistance, zapTarget[2], quantity;
+    short maxDistance, zapTarget[2], originLoc[2], quantity;
     boolean autoTarget;
 
     command[0] = THROW_KEY;
@@ -5794,6 +5789,8 @@ void throwCommand(item *theItem) {
         thrownItem->quantity = 1;
 
         itemName(thrownItem, theName, false, false, NULL);
+        originLoc[0] = player.xLoc;
+        originLoc[1] = player.yLoc;
 
         throwItem(thrownItem, &player, zapTarget, maxDistance);
     } else {

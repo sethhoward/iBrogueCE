@@ -462,12 +462,7 @@ void resolvePronounEscapes(char *text, creature *monst) {
     *insert = '\0';
 }
 
-/*
-Returns a random horde, weighted by spawn frequency, which has all requiredFlags
-and does not have any forbiddenFlags. If summonerType is 0, all hordes valid on
-the given depth are considered. (Depth 0 means current depth.) Otherwise, all
-hordes with summonerType as a leader are considered.
-*/
+// Pass 0 for summonerType for an ordinary selection.
 short pickHordeType(short depth, enum monsterTypes summonerType, unsigned long forbiddenFlags, unsigned long requiredFlags) {
     short i, index, possCount = 0;
 
@@ -959,7 +954,7 @@ boolean summonMinions(creature *summoner) {
 
     if (canSeeMonster(summoner)) {
         monsterName(monstName, summoner, true);
-        if (monsterText[summoner->info.monsterID].summonMessage[0]) {
+        if (monsterText[summoner->info.monsterID].summonMessage) {
             sprintf(buf, "%s %s", monstName, monsterText[summoner->info.monsterID].summonMessage);
         } else {
             sprintf(buf, "%s incants darkly!", monstName);
@@ -3516,9 +3511,8 @@ boolean moveMonster(creature *monst, short dx, short dy) {
     newX = x + dx;
     newY = y + dy;
 
-    // Liquid-based monsters should only move or attack between liquid tiles
-    if ((monst->info.flags & MONST_RESTRICTED_TO_LIQUID)
-        && (!cellHasTMFlag(x, y, TM_ALLOWS_SUBMERGING) || !cellHasTMFlag(newX, newY, TM_ALLOWS_SUBMERGING))) {
+    // Liquid-based monsters should never move or attack outside of liquid.
+    if ((monst->info.flags & MONST_RESTRICTED_TO_LIQUID) && !cellHasTMFlag(newX, newY, TM_ALLOWS_SUBMERGING)) {
         return false;
     }
 
@@ -4030,7 +4024,7 @@ boolean staffOrWandEffectOnMonsterDescription(char *newText, item *theItem, crea
 void monsterDetails(char buf[], creature *monst) {
     char monstName[COLS], capMonstName[COLS], theItemName[COLS * 3], newText[20*COLS];
     short i, j, combatMath, combatMath2, playerKnownAverageDamage, playerKnownMaxDamage, commaCount, realArmorValue;
-    boolean anyFlags, alreadyDisplayedDominationText = false;
+    boolean anyFlags, displayedItemText = false, alreadyDisplayedDominationText = false;
     item *theItem;
 
     buf[0] = '\0';
@@ -4225,6 +4219,7 @@ void monsterDetails(char buf[], creature *monst) {
             i = strlen(buf);
             i = encodeMessageColor(buf, i, &itemMessageColor);
             strcat(buf, newText);
+            displayedItemText = true;
         }
     }
 

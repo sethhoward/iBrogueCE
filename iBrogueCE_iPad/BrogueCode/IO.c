@@ -374,18 +374,7 @@ short actionMenu(short x, boolean playingBack) {
         clearDisplayBuffer(dbuf);
         rectangularShading(x - 1, y, longestName + 2, buttonCount, &black, INTERFACE_OPACITY / 2, dbuf);
         overlayDisplayBuffer(dbuf, rbuf);
-        
-        
-        // Seth:
-        setBrogueGameEvent(CBrogueGameEventActionMenuOpen);
-        
-        
         buttonChosen = buttonInputLoop(buttons, buttonCount, x - 1, y, longestName + 2, buttonCount, NULL);
-        
-        
-        // Seth:
-        setBrogueGameEvent(CBrogueGameEventActionMenuClose);
-        
         overlayDisplayBuffer(rbuf, NULL);
         if (buttonChosen == -1) {
             return -1;
@@ -401,7 +390,6 @@ short actionMenu(short x, boolean playingBack) {
         }
     } while (takeActionOurselves[buttonChosen]);
     brogueAssert(false);
-    return -1;
 }
 
 #define MAX_MENU_BUTTON_COUNT 5
@@ -517,7 +505,7 @@ void initializeMenuButtons(buttonState *state, brogueButton buttons[5]) {
 
 // This is basically the main loop for the game.
 void mainInputLoop() {
-    short originLoc[2], pathDestination[2], oldTargetLoc[2] = { 0, 0 },
+    short originLoc[2], pathDestination[2], oldTargetLoc[2],
     path[1000][2], steps, oldRNG, dir, newX, newY;
     creature *monst;
     item *theItem;
@@ -2822,10 +2810,7 @@ boolean confirm(char *prompt, boolean alsoDuringPlayback) {
     if (rogue.autoPlayingLevel || (!alsoDuringPlayback && rogue.playbackMode)) {
         return true; // oh yes he did
     }
-    
-    // Seth:
-    setBrogueGameEvent(CBrogueGameEventWaitingForConfirmation);
-    
+
     encodeMessageColor(whiteColorEscape, 0, &white);
     encodeMessageColor(yellowColorEscape, 0, KEYBOARD_LABELS ? &yellow : &white);
 
@@ -2846,10 +2831,7 @@ boolean confirm(char *prompt, boolean alsoDuringPlayback) {
 
     retVal = printTextBox(prompt, COLS/3, ROWS/3, COLS/3, &white, &interfaceBoxColor, rbuf, buttons, 2);
     overlayDisplayBuffer(rbuf, NULL);
-    
-    // Seth:
-    setBrogueGameEvent(CBrogueGameEventConfirmationComplete);
-    
+
     if (retVal == -1 || retVal == 1) { // If they canceled or pressed no.
         return false;
     } else {
@@ -3291,9 +3273,9 @@ enum entityDisplayTypes {
 // we won't know if it will fit on the screen in normal order until we try.
 // So if we try and fail, this function will call itself again, but with this set to true.
 void refreshSideBar(short focusX, short focusY, boolean focusedEntityMustGoFirst) {
-    short printY, oldPrintY, shortestDistance, i, j, k, px, py, x = 0, y = 0, displayEntityCount, indirectVision;
-    creature *monst = NULL, *closestMonst = NULL;
-    item *theItem, *closestItem = NULL;
+    short printY, oldPrintY, shortestDistance, i, j, k, px, py, x, y, displayEntityCount, indirectVision;
+    creature *monst, *closestMonst;
+    item *theItem, *closestItem;
     char buf[COLS];
     void *entityList[ROWS] = {0}, *focusEntity = NULL;
     enum entityDisplayTypes entityType[ROWS] = {0}, focusEntityType = EDT_NOTHING;
@@ -3963,19 +3945,9 @@ void printHighScores(boolean hiliteMostRecent) {
 
         // date
         printString(list[i].date, leftOffset + 12, i + 2, &scoreColor, &black, 0);
-        
-        // Seth
-        if (list[i].seed != 0) {
-            // seed
-            sprintf(buf, "[Seed: #%lu]", list[i].seed);
-            printString(buf, leftOffset + 21, i + 2, &scoreColor, &black, 0);
-            // description
-            printString(list[i].description, leftOffset + 39, i + 2, &scoreColor, &black, 0);
-        }
-        else {
-            // description
-            printString(list[i].description, leftOffset + 21, i + 2, &scoreColor, &black, 0);
-        }
+
+        // description
+        printString(list[i].description, leftOffset + 23, i + 2, &scoreColor, &black, 0);
     }
 
     scoreColor = black;

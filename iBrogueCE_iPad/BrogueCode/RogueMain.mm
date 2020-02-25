@@ -260,7 +260,6 @@ void initializeRogue(unsigned long seed) {
         levels[i].monsters = NULL;
         levels[i].dormantMonsters = NULL;
         levels[i].items = NULL;
-        levels[i].scentMap = NULL;
         levels[i].visited = false;
         levels[i].playerExitedVia[0] = 0;
         levels[i].playerExitedVia[1] = 0;
