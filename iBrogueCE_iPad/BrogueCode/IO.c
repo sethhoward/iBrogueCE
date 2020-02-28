@@ -374,7 +374,15 @@ short actionMenu(short x, boolean playingBack) {
         clearDisplayBuffer(dbuf);
         rectangularShading(x - 1, y, longestName + 2, buttonCount, &black, INTERFACE_OPACITY / 2, dbuf);
         overlayDisplayBuffer(dbuf, rbuf);
+        
+        // Seth:
+        setBrogueGameEvent(CBrogueGameEventActionMenuOpen);
+        
         buttonChosen = buttonInputLoop(buttons, buttonCount, x - 1, y, longestName + 2, buttonCount, NULL);
+        
+        // Seth:
+        setBrogueGameEvent(CBrogueGameEventActionMenuClose);
+        
         overlayDisplayBuffer(rbuf, NULL);
         if (buttonChosen == -1) {
             return -1;
@@ -2783,6 +2791,9 @@ void waitForAcknowledgment() {
     if (rogue.autoPlayingLevel || (rogue.playbackMode && !rogue.playbackOOS)) {
         return;
     }
+    
+    // Seth:
+    setBrogueGameEvent(CBrogueGameEventWaitingForConfirmation);
 
     do {
         nextBrogueEvent(&theEvent, false, false, false);
@@ -2791,6 +2802,9 @@ void waitForAcknowledgment() {
         }
     } while (!(theEvent.eventType == KEYSTROKE && (theEvent.param1 == ACKNOWLEDGE_KEY || theEvent.param1 == ESCAPE_KEY)
                || theEvent.eventType == MOUSE_UP));
+    
+    // Seth:
+    setBrogueGameEvent(CBrogueGameEventConfirmationComplete);
 }
 
 void waitForKeystrokeOrMouseClick() {
@@ -2810,6 +2824,9 @@ boolean confirm(char *prompt, boolean alsoDuringPlayback) {
     if (rogue.autoPlayingLevel || (!alsoDuringPlayback && rogue.playbackMode)) {
         return true; // oh yes he did
     }
+    
+    // Seth:
+    setBrogueGameEvent(CBrogueGameEventWaitingForConfirmation);
 
     encodeMessageColor(whiteColorEscape, 0, &white);
     encodeMessageColor(yellowColorEscape, 0, KEYBOARD_LABELS ? &yellow : &white);
@@ -2831,6 +2848,9 @@ boolean confirm(char *prompt, boolean alsoDuringPlayback) {
 
     retVal = printTextBox(prompt, COLS/3, ROWS/3, COLS/3, &white, &interfaceBoxColor, rbuf, buttons, 2);
     overlayDisplayBuffer(rbuf, NULL);
+    
+    // Seth:
+    setBrogueGameEvent(CBrogueGameEventConfirmationComplete);
 
     if (retVal == -1 || retVal == 1) { // If they canceled or pressed no.
         return false;

@@ -318,11 +318,11 @@ void titleMenu() {
     buttons[b].hotkey[1] = 'H';
     b++;
 
-    initializeButton(&(buttons[b]));
-    sprintf(buttons[b].text, "        %sQ%suit        ", goldColorEscape, whiteColorEscape);
-    buttons[b].hotkey[0] = 'q';
-    buttons[b].hotkey[1] = 'Q';
-    b++;
+//    initializeButton(&(buttons[b]));
+//    sprintf(buttons[b].text, "        %sQ%suit        ", goldColorEscape, whiteColorEscape);
+//    buttons[b].hotkey[0] = 'q';
+//    buttons[b].hotkey[1] = 'Q';
+//    b++;
 
     x = COLS - 1 - 20 - 2;
     y = ROWS - 1;
@@ -804,6 +804,8 @@ void mainBrogueJunction() {
 
                 if (openFile(path)) {
                     loadSavedGame();
+                    // Seth: Added
+                    setBrogueGameEvent(CBrogueGameEventOpenGame);
                     mainInputLoop();
                     freeEverything();
                 } else {
@@ -811,7 +813,8 @@ void mainBrogueJunction() {
                 }
                 rogue.playbackMode = false;
                 rogue.playbackOOS = false;
-
+                // Seth: Added
+                setBrogueGameEvent(CBrogueGameEventOpenGameFinished);
                 break;
             case NG_VIEW_RECORDING:
                 rogue.nextGame = NG_NOTHING;

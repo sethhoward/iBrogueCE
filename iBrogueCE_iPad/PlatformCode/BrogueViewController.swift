@@ -164,7 +164,6 @@ final class BrogueViewController: UIViewController {
     }
     
     @objc func draggedView(_ sender: UIPanGestureRecognizer) {
-
         directionsViewController?.cancel()
         let translation = sender.translation(in: view)
         dContainerView.center = CGPoint(x: dContainerView.center.x + translation.x, y: dContainerView.center.y + translation.y)

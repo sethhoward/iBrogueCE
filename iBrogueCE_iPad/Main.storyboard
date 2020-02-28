@@ -10,12 +10,12 @@
         <!--Brogue View Controller-->
         <scene sceneID="Ify-A2-7Hi">
             <objects>
-                <viewController id="Aj1-6Q-hr4" customClass="BrogueViewController" customModule="Brogue" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="Aj1-6Q-hr4" customClass="BrogueViewController" customModule="BrogueCE" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="3ZN-PO-CtL"/>
                         <viewControllerLayoutGuide type="bottom" id="5iJ-nv-hm4"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="k4p-up-pot" customClass="SKViewPort" customModule="Brogue" customModuleProvider="target">
+                    <view key="view" contentMode="scaleToFill" id="k4p-up-pot" customClass="SKViewPort" customModule="BrogueCE" customModuleProvider="target">
                         <rect key="frame" x="0.0" y="0.0" width="1366" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
@@ -27,7 +27,7 @@
                                     <outlet property="delegate" destination="k4p-up-pot" id="jqz-6P-Qha"/>
                                 </connections>
                             </textField>
-                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YVm-W1-mrm" customClass="SKMagView" customModule="Brogue" customModuleProvider="target">
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YVm-W1-mrm" customClass="SKMagView" customModule="BrogueCE" customModuleProvider="target">
                                 <rect key="frame" x="262" y="148" width="200" height="200"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -174,6 +174,7 @@
                                                 <connections>
                                                     <action selector="buttonDown:" destination="rXF-ml-eLX" eventType="touchDown" id="XoF-xS-FEV"/>
                                                     <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchUpInside" id="3kN-sb-i35"/>
+                                                    <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchDragOutside" id="OY8-2q-wrb"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" tag="2" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RYd-Cy-DpY" userLabel="Right Button">
@@ -190,6 +191,7 @@
                                                 <connections>
                                                     <action selector="buttonDown:" destination="rXF-ml-eLX" eventType="touchDown" id="gBA-K1-h2w"/>
                                                     <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchUpInside" id="8Wj-WB-sAG"/>
+                                                    <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchDragOutside" id="adB-BJ-b4O"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" tag="3" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Evi-No-PAV" userLabel="Down Button">
@@ -205,6 +207,7 @@
                                                 </state>
                                                 <connections>
                                                     <action selector="buttonDown:" destination="rXF-ml-eLX" eventType="touchDown" id="AgS-Pb-5Cg"/>
+                                                    <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchDragOutside" id="NB6-aT-Dda"/>
                                                     <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchUpInside" id="eZF-KH-gG1"/>
                                                 </connections>
                                             </button>
@@ -222,6 +225,7 @@
                                                 <connections>
                                                     <action selector="buttonDown:" destination="rXF-ml-eLX" eventType="touchDown" id="149-vH-FBd"/>
                                                     <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchUpInside" id="bU5-hd-AfO"/>
+                                                    <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchDragOutside" id="wDl-tZ-ui8"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" tag="5" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="L9I-jd-ilx" userLabel="Up Left Button">
@@ -237,6 +241,7 @@
                                                 </state>
                                                 <connections>
                                                     <action selector="buttonDown:" destination="rXF-ml-eLX" eventType="touchDown" id="Pz5-V9-HXn"/>
+                                                    <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchDragOutside" id="f9b-mM-5d4"/>
                                                     <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchUpInside" id="uVR-yq-kX5"/>
                                                 </connections>
                                             </button>
@@ -254,6 +259,7 @@
                                                 <connections>
                                                     <action selector="buttonDown:" destination="rXF-ml-eLX" eventType="touchDown" id="3lk-AS-W8D"/>
                                                     <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchUpInside" id="7az-vr-HEf"/>
+                                                    <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchDragOutside" id="Eld-EW-UxV"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" tag="7" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NlR-nX-jFI" userLabel="Down Right Button">
@@ -269,6 +275,7 @@
                                                 </state>
                                                 <connections>
                                                     <action selector="buttonDown:" destination="rXF-ml-eLX" eventType="touchDown" id="syO-nz-2lo"/>
+                                                    <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchDragOutside" id="Fxq-E0-Qyw"/>
                                                     <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchUpInside" id="t5Q-yc-mMI"/>
                                                 </connections>
                                             </button>
@@ -286,6 +293,7 @@
                                                 <connections>
                                                     <action selector="buttonDown:" destination="rXF-ml-eLX" eventType="touchDown" id="Xhh-Oc-KkB"/>
                                                     <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchUpInside" id="4zP-4O-23Y"/>
+                                                    <action selector="buttonUp:" destination="rXF-ml-eLX" eventType="touchDragOutside" id="tSh-rK-Tze"/>
                                                 </connections>
                                             </button>
                                             <imageView userInteractionEnabled="NO" alpha="0.60000002384185791" contentMode="scaleToFill" fixedFrame="YES" image="brogue_directionals.png" translatesAutoresizingMaskIntoConstraints="NO" id="M9l-Yn-fE6">
