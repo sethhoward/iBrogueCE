@@ -1914,6 +1914,9 @@ boolean explore(short frameDelay) {
     brogueAssert(!rogue.playbackMode);
 
     clearCursorPath();
+    
+    // Seth:
+    rogue.cursorLoc[0] = rogue.cursorLoc[1] = -1;
 
     madeProgress    = false;
     headingToStairs = false;

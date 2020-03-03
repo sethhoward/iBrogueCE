@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Aj1-6Q-hr4">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Aj1-6Q-hr4">
     <device id="ipad12_9" orientation="landscape" layout="fullscreen" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -11,10 +12,6 @@
         <scene sceneID="Ify-A2-7Hi">
             <objects>
                 <viewController id="Aj1-6Q-hr4" customClass="BrogueViewController" customModule="BrogueCE" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="3ZN-PO-CtL"/>
-                        <viewControllerLayoutGuide type="bottom" id="5iJ-nv-hm4"/>
-                    </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="k4p-up-pot" customClass="SKViewPort" customModule="BrogueCE" customModuleProvider="target">
                         <rect key="frame" x="0.0" y="0.0" width="1366" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -100,15 +97,16 @@
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="do5-dF-Tp3" firstAttribute="leading" secondItem="k4p-up-pot" secondAttribute="leadingMargin" constant="20" id="0DZ-xW-rzx"/>
-                            <constraint firstItem="yKE-1T-uLw" firstAttribute="leading" secondItem="k4p-up-pot" secondAttribute="leading" constant="362" id="Hh2-zZ-5qf"/>
+                            <constraint firstItem="yKE-1T-uLw" firstAttribute="leading" secondItem="JdY-fl-jeb" secondAttribute="leading" constant="362" id="Hh2-zZ-5qf"/>
                             <constraint firstItem="cV9-D3-n39" firstAttribute="leading" secondItem="k4p-up-pot" secondAttribute="leadingMargin" constant="200" id="IrV-Xd-S8I"/>
-                            <constraint firstItem="5iJ-nv-hm4" firstAttribute="top" secondItem="3ab-lz-7c3" secondAttribute="bottom" constant="30" id="OXi-hn-f0k"/>
-                            <constraint firstItem="yKE-1T-uLw" firstAttribute="top" secondItem="3ZN-PO-CtL" secondAttribute="bottom" constant="-100" id="Zrc-He-d7U"/>
-                            <constraint firstItem="cV9-D3-n39" firstAttribute="top" secondItem="3ZN-PO-CtL" secondAttribute="bottom" constant="60" id="hdc-s4-aW4"/>
+                            <constraint firstItem="JdY-fl-jeb" firstAttribute="bottom" secondItem="3ab-lz-7c3" secondAttribute="bottom" constant="30" id="OXi-hn-f0k"/>
+                            <constraint firstItem="yKE-1T-uLw" firstAttribute="top" secondItem="JdY-fl-jeb" secondAttribute="top" constant="-100" id="Zrc-He-d7U"/>
+                            <constraint firstItem="cV9-D3-n39" firstAttribute="top" secondItem="JdY-fl-jeb" secondAttribute="top" constant="60" id="hdc-s4-aW4"/>
                             <constraint firstItem="kDi-vu-rSS" firstAttribute="leading" secondItem="k4p-up-pot" secondAttribute="leadingMargin" constant="-10" id="jJR-za-64l"/>
-                            <constraint firstItem="do5-dF-Tp3" firstAttribute="top" secondItem="3ZN-PO-CtL" secondAttribute="bottom" id="oV0-s0-GG7"/>
-                            <constraint firstItem="5iJ-nv-hm4" firstAttribute="top" secondItem="kDi-vu-rSS" secondAttribute="bottom" constant="30" id="trc-JX-Lpz"/>
+                            <constraint firstItem="do5-dF-Tp3" firstAttribute="top" secondItem="JdY-fl-jeb" secondAttribute="top" id="oV0-s0-GG7"/>
+                            <constraint firstItem="JdY-fl-jeb" firstAttribute="bottom" secondItem="kDi-vu-rSS" secondAttribute="bottom" constant="30" id="trc-JX-Lpz"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="JdY-fl-jeb"/>
                     </view>
                     <connections>
                         <outlet property="dContainerView" destination="kDi-vu-rSS" id="IyI-SU-V80"/>
@@ -128,10 +126,6 @@
         <scene sceneID="Sgj-yc-Uhy">
             <objects>
                 <viewController id="rXF-ml-eLX" customClass="DirectionControlsViewController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="FZL-qG-vQW"/>
-                        <viewControllerLayoutGuide type="bottom" id="453-1F-usv"/>
-                    </layoutGuides>
                     <view key="view" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="kEO-cl-UhR">
                         <rect key="frame" x="0.0" y="0.0" width="200" height="220"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -322,6 +316,7 @@
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                        <viewLayoutGuide key="safeArea" id="A3X-Bg-e8R"/>
                     </view>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <size key="freeformSize" width="200" height="220"/>

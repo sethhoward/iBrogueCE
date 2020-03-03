@@ -1048,8 +1048,6 @@ void gameOver(char *killedBy, boolean useCustomPhrasing) {
         // Seth:
         setBrogueGameEvent(CBrogueGameEventMessagePlayerHasDied);
         
-        // Seth:
-        setBrogueGameEvent(CBrogueGameEventMessagePlayerHasDied);
         messageWithColor(buf, &badMessageColor, false);
         displayMoreSignWithoutWaitingForAcknowledgment();
 

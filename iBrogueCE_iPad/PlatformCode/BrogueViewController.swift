@@ -141,6 +141,15 @@ final class BrogueViewController: UIViewController {
         }
     }
     
+    override var prefersHomeIndicatorAutoHidden: Bool {
+        return true
+    }
+    
+    override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge {
+        return .all
+    }
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // TODO: clean this up
@@ -157,6 +166,10 @@ final class BrogueViewController: UIViewController {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(draggedView(_:)))
         panGesture.minimumNumberOfTouches = 2
         dContainerView.addGestureRecognizer(panGesture)
+        
+        if #available(iOS 11.0, *) {
+            setNeedsUpdateOfHomeIndicatorAutoHidden()
+        }
     }
     
     @objc func handleDirectionTouch(_ sender: UIPanGestureRecognizer) {
@@ -265,6 +278,10 @@ extension BrogueViewController {
                 // other touch
                 addTouchEvent(event: UIBrogueTouchEvent(phase: .stationary, location: lastTouchLocation))
                 addTouchEvent(event: UIBrogueTouchEvent(phase: .ended, location: lastTouchLocation))
+                
+                if pointIsInPlayArea(point: location) && lastBrogueGameEvent != .openedInventory && lastBrogueGameEvent != .inventoryItemAction && lastBrogueGameEvent != .showTitle && lastBrogueGameEvent != .waitingForConfirmation && lastBrogueGameEvent != .actionMenuOpen {
+                    addTouchEvent(event: UIBrogueTouchEvent(phase: .ended, location: lastTouchLocation))
+                }
             }
         }
         
