@@ -33,12 +33,18 @@ private func synchronized<T>(_ lock: Any, _ body: () throws -> T) rethrows -> T 
 fileprivate let COLS = 100
 fileprivate let ROWS = 34
  
+ // Because of a main thread issue we need to set this.
+ fileprivate var kOffset: CGFloat = 0
+
 extension UIScreen {
     @objc static var safeBounds: CGRect {
         var offset: CGFloat =  0.0
         if #available(iOS 11.0, *) {
             if Thread.isMainThread {
-                 offset = UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0
+                offset = UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0
+                kOffset = offset
+            } else {
+                offset = kOffset
             }
         }
         
