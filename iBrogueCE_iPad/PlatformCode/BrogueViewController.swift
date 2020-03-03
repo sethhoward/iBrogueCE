@@ -32,10 +32,23 @@ private func synchronized<T>(_ lock: Any, _ body: () throws -> T) rethrows -> T 
 
 fileprivate let COLS = 100
 fileprivate let ROWS = 34
+ 
+extension UIScreen {
+    @objc static var safeBounds: CGRect {
+        var offset: CGFloat =  0.0
+        if #available(iOS 11.0, *) {
+            if Thread.isMainThread {
+                 offset = UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0
+            }
+        }
+        
+        return CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - offset)
+    }
+}
 
 fileprivate func getCellCoords(at point: CGPoint) -> CGPoint {
     let cellx = Int(CGFloat(COLS) * point.x / UIScreen.main.bounds.size.width)
-    let celly = Int(CGFloat(ROWS) * point.y / UIScreen.main.bounds.size.height)
+    let celly = Int(CGFloat(ROWS) * point.y / (UIScreen.safeBounds.size.height))
     
     return CGPoint(x: cellx, y: celly)
 }
@@ -229,7 +242,7 @@ extension BrogueViewController {
         guard dContainerView.hitTest(touches.first!.location(in: dContainerView), with: event) == nil else { return }
         
         for touch in touches {
-            let location = touch.location(in: view)
+            let location = touch.location(in: skViewPort)
             // handle double tap on began.
             if touch.tapCount >= 2 && pointIsInPlayArea(point: location) {
                 // double tap in the play area
@@ -251,7 +264,7 @@ extension BrogueViewController {
         guard dContainerView.hitTest(touches.first!.location(in: dContainerView), with: event) == nil else { return }
         
         if let touch = touches.first {
-            let location = touch.location(in: view)
+            let location = touch.location(in: skViewPort)
             let brogueEvent = UIBrogueTouchEvent(phase: touch.phase, location: location)
 
             addTouchEvent(event: brogueEvent)
@@ -265,7 +278,7 @@ extension BrogueViewController {
         guard dContainerView.hitTest(touches.first!.location(in: dContainerView), with: event) == nil else { return }
         
         if let touch = touches.first {
-            let location = touch.location(in: view)
+            let location = touch.location(in: skViewPort)
             
             if pointIsInSideBar(point: location) {
                 // side bar
@@ -512,7 +525,7 @@ final class SKMagView: SKView {
     var viewToMagnify: SKViewPort?
     // TODO: magic numbers
     private var size = CGSize(width: 110, height: 110)
-    private var offset = CGSize(width: 55, height: -35)
+    private var offset = CGSize(width: 60, height: -27)
     private let parentNode: SKNode
     private var cells: [Cell]? {
         willSet {

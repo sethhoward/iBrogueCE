@@ -12,10 +12,14 @@
         <scene sceneID="Ify-A2-7Hi">
             <objects>
                 <viewController id="Aj1-6Q-hr4" customClass="BrogueViewController" customModule="BrogueCE" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="k4p-up-pot" customClass="SKViewPort" customModule="BrogueCE" customModuleProvider="target">
+                    <view key="view" contentMode="scaleToFill" id="k4p-up-pot">
                         <rect key="frame" x="0.0" y="0.0" width="1366" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hc4-GD-oqZ" customClass="SKViewPort" customModule="BrogueCE" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="1366" height="1024"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                            </view>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="yKE-1T-uLw">
                                 <rect key="frame" x="362" y="-100" width="32" height="34"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -97,10 +101,14 @@
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="do5-dF-Tp3" firstAttribute="leading" secondItem="k4p-up-pot" secondAttribute="leadingMargin" constant="20" id="0DZ-xW-rzx"/>
+                            <constraint firstItem="hc4-GD-oqZ" firstAttribute="leading" secondItem="JdY-fl-jeb" secondAttribute="leading" id="4TP-qF-3MF"/>
                             <constraint firstItem="yKE-1T-uLw" firstAttribute="leading" secondItem="JdY-fl-jeb" secondAttribute="leading" constant="362" id="Hh2-zZ-5qf"/>
                             <constraint firstItem="cV9-D3-n39" firstAttribute="leading" secondItem="k4p-up-pot" secondAttribute="leadingMargin" constant="200" id="IrV-Xd-S8I"/>
                             <constraint firstItem="JdY-fl-jeb" firstAttribute="bottom" secondItem="3ab-lz-7c3" secondAttribute="bottom" constant="30" id="OXi-hn-f0k"/>
+                            <constraint firstItem="JdY-fl-jeb" firstAttribute="trailing" secondItem="hc4-GD-oqZ" secondAttribute="trailing" id="Wt1-VK-p2I"/>
                             <constraint firstItem="yKE-1T-uLw" firstAttribute="top" secondItem="JdY-fl-jeb" secondAttribute="top" constant="-100" id="Zrc-He-d7U"/>
+                            <constraint firstItem="JdY-fl-jeb" firstAttribute="bottom" secondItem="hc4-GD-oqZ" secondAttribute="bottom" id="bBG-0C-F5Z"/>
+                            <constraint firstItem="hc4-GD-oqZ" firstAttribute="top" secondItem="JdY-fl-jeb" secondAttribute="top" id="h7c-or-8tx"/>
                             <constraint firstItem="cV9-D3-n39" firstAttribute="top" secondItem="JdY-fl-jeb" secondAttribute="top" constant="60" id="hdc-s4-aW4"/>
                             <constraint firstItem="kDi-vu-rSS" firstAttribute="leading" secondItem="k4p-up-pot" secondAttribute="leadingMargin" constant="-10" id="jJR-za-64l"/>
                             <constraint firstItem="do5-dF-Tp3" firstAttribute="top" secondItem="JdY-fl-jeb" secondAttribute="top" id="oV0-s0-GG7"/>
@@ -115,7 +123,7 @@
                         <outlet property="magView" destination="YVm-W1-mrm" id="4q0-Kc-Wqq"/>
                         <outlet property="seedButton" destination="3ab-lz-7c3" id="dgN-z3-5qw"/>
                         <outlet property="showInventoryButton" destination="cV9-D3-n39" id="kJc-Zv-92v"/>
-                        <outlet property="skViewPort" destination="k4p-up-pot" id="3qr-NU-Bs2"/>
+                        <outlet property="skViewPort" destination="hc4-GD-oqZ" id="Qow-6d-l2H"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kS9-99-k6a" userLabel="First Responder" sceneMemberID="firstResponder"/>
