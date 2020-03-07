@@ -433,7 +433,7 @@ fileEntry *listFiles(short *fileCount, char **dynamicMemoryBuffer) {
 	unsigned long bufferPosition, bufferSize;
 	unsigned long *offsets;
 	fileEntry *fileList;
-	NSArray *array;
+	NSMutableArray *array;
 	NSFileManager *manager = [NSFileManager defaultManager];
     NSError *err;
 	NSDictionary *fileAttributes;
@@ -448,8 +448,53 @@ fileEntry *listFiles(short *fileCount, char **dynamicMemoryBuffer) {
 	dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"MM/dd/yy"];//                initWithDateFormat:@"%1m/%1d/%y" allowNaturalLanguage:YES];
     
-	array = [manager contentsOfDirectoryAtPath:[manager currentDirectoryPath] error:&err];
+	array = [[manager contentsOfDirectoryAtPath:[manager currentDirectoryPath]  error:&err] mutableCopy];
 	count = [array count];
+    
+    //BOOL ascending = YES;
+
+    // sort by creation date
+    NSMutableArray* filesAndProperties = [NSMutableArray arrayWithCapacity:[array count]];
+
+    for(NSString* file in array) {
+
+        if (![file isEqualToString:@".DS_Store"]) {
+            NSString* filePath = [[manager currentDirectoryPath] stringByAppendingPathComponent:file];
+            NSDictionary* properties = [[NSFileManager defaultManager]
+                                        attributesOfItemAtPath:filePath
+                                        error:&err];
+            NSDate* modDate = [properties objectForKey:NSFileModificationDate];
+
+            [filesAndProperties addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+                                           file, @"path",
+                                           modDate, @"lastModDate",
+                                           nil]];
+
+        }
+    }
+
+    // Sort using a block - order inverted as we want latest date first
+    NSArray* sortedFiles = [filesAndProperties sortedArrayUsingComparator:
+                            ^(id path1, id path2)
+                            {
+                                // compare
+                                NSComparisonResult comp = [[path1 objectForKey:@"lastModDate"] compare:
+                                                           [path2 objectForKey:@"lastModDate"]];
+                                // invert ordering
+                                if (comp == NSOrderedDescending) {
+                                    comp = NSOrderedAscending;
+                                }
+                                else if(comp == NSOrderedAscending){
+                                    comp = NSOrderedDescending;
+                                }
+                                return comp;
+                            }];
+    
+    
+    [array removeAllObjects];
+    for(NSDictionary* dict in sortedFiles) {
+        [array addObject:[dict objectForKey:@"path"]];
+    }
     
 	fileList = (fileEntry *)malloc((count + ADD_FAKE_PADDING_FILES) * sizeof(fileEntry));
 	offsets = (unsigned long*)malloc((count + ADD_FAKE_PADDING_FILES) * sizeof(unsigned long));

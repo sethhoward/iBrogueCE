@@ -449,7 +449,7 @@ boolean dialogChooseFile(char *path, const char *suffix, const char *prompt) {
     cellDisplayBuffer dbuf[COLS][ROWS], rbuf[COLS][ROWS];
     color *dialogColor = &interfaceBoxColor;
     char *membuf;
-    char fileDate [11];
+ //   char fileDate [11];
 
     suffixLength = strlen(suffix);
     files = listFiles(&count, &membuf);
@@ -480,7 +480,7 @@ boolean dialogChooseFile(char *path, const char *suffix, const char *prompt) {
     count = j;
     
     // Once we have all relevant files, we sort them by date descending
-    qsort(files, count, sizeof(fileEntry), &fileEntryCompareDates);
+   // qsort(files, count, sizeof(fileEntry), &fileEntryCompareDates);
 
     currentPageStart = 0;
 
@@ -523,8 +523,8 @@ boolean dialogChooseFile(char *path, const char *suffix, const char *prompt) {
                 buttons[i].text[j] = ' ';
             }
             buttons[i].text[j] = '\0';
-            strftime(fileDate, sizeof(fileDate), DATE_FORMAT, &files[currentPageStart+i].date);
-            strcpy(&(buttons[i].text[j]), fileDate);
+            strcpy(&(buttons[i].text[j]), files[currentPageStart+i].date);
+           // strcpy(&(buttons[i].text[j]), fileDate);
             buttons[i].x = x;
             buttons[i].y = y + 1 + i;
         }

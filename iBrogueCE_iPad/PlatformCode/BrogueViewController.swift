@@ -286,7 +286,7 @@ extension BrogueViewController {
         if let touch = touches.first {
             let location = touch.location(in: skViewPort)
             
-            if pointIsInSideBar(point: location) {
+            if pointIsInSideBar(point: location) && lastBrogueGameEvent != .openedInventory {
                 // side bar
                 if touch.tapCount >= 2 {
                     addTouchEvent(event: UIBrogueTouchEvent(phase: .ended, location: lastTouchLocation))
