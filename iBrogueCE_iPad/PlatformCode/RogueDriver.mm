@@ -77,7 +77,7 @@ static BrogueViewController *brogueViewController;
 //  plotChar: plots inputChar at (xLoc, yLoc) with specified background and foreground colors.
 //  Color components are given in ints from 0 to 100.
 
-void plotChar(uchar inputChar,
+void plotChar(enum displayGlyph inputChar,
 			  short xLoc, short yLoc,
 			  short foreRed, short foreGreen, short foreBlue,
 			  short backRed, short backGreen, short backBlue) {
