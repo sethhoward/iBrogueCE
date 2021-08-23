@@ -26,47 +26,75 @@
 #include <string.h>
 #include <stdint.h>
 #include <time.h>
-//#include "PlatformDefines.h"
 
-// unicode: comment this line to revert to ASCII
+// Seth:
+// #include "PlatformDefines.h"
+#define BROGUE_EXTRA_VERSION "-iPad"
 
-#define USE_UNICODE
-
-// Brogue version: what the user sees in the menu and title
-#define BROGUE_VERSION_STRING "CE 1.8.1"
-// Recording version: replay/saves from a different version won't load
-// Cannot be longer than 16 chars
-#define BROGUE_RECORDING_VERSION_STRING "CE 1.8"
-
-// debug macros -- define DEBUGGING as 1 to enable wizard mode.
-
-#ifndef DEBUGGING
-#define DEBUGGING                       0
+#ifndef BROGUE_EXTRA_VERSION
+#error "The BROGUE_EXTRA_VERSION macro is undefined."
 #endif
 
-#define DEBUG                           if (DEBUGGING)
-#define MONSTERS_ENABLED                (!DEBUGGING || 1) // Quest room monsters can be generated regardless.
-#define ITEMS_ENABLED                   (!DEBUGGING || 1)
+// unicode: comment this line to revert to ASCII
+#define USE_UNICODE
 
-#define D_BULLET_TIME                   (DEBUGGING && 0)
-#define D_WORMHOLING                    (DEBUGGING && 1)
-#define D_IMMORTAL                      (DEBUGGING && 1)
+// Brogue version number
+#define BROGUE_MAJOR 1
+#define BROGUE_MINOR 10
+#define BROGUE_PATCH 1
 
-#define D_SAFETY_VISION                 (DEBUGGING && 0)
-#define D_SCENT_VISION                  (DEBUGGING && 0)
-#define D_DISABLE_BACKGROUND_COLORS     (DEBUGGING && 0)
+// Expanding a macro as a string constant requires two levels of macros
+#define _str(x) #x
+#define STRINGIFY(x) _str(x)
 
-#define D_INSPECT_LEVELGEN              (DEBUGGING && 0)
-#define D_INSPECT_MACHINES              (DEBUGGING && 0)
+// Brogue version: what the user sees in the menu and title
+#define BROGUE_VERSION_STRING "CE " STRINGIFY(BROGUE_MAJOR) "." STRINGIFY(BROGUE_MINOR) "." STRINGIFY(BROGUE_PATCH) BROGUE_EXTRA_VERSION
 
-#define D_MESSAGE_ITEM_GENERATION       (DEBUGGING && 0)
-#define D_MESSAGE_MACHINE_GENERATION    (DEBUGGING && 0)
+// Recording version. Saved into recordings and save files made by this version.
+// Cannot be longer than 16 chars
+#define BROGUE_RECORDING_VERSION_STRING "CE " STRINGIFY(BROGUE_MAJOR) "." STRINGIFY(BROGUE_MINOR) "." STRINGIFY(BROGUE_PATCH)
+
+/* Patch pattern. A scanf format string which matches an unsigned short. If this
+matches against a recording version string, it defines a "patch version." During
+normal play, rogue.patchVersion is set to the match of the game's recording
+version above, or 0 if it doesn't match.
+
+The game will only load a recording/save if either a) it has a patch version
+which is equal or less than the patch version of the current game
+(rogue.patchLevel is set to the recording's); or b) it doesn't match the version
+strings, but they are equal (rogue.patchLevel is set to 0).
+*/
+#define BROGUE_PATCH_VERSION_PATTERN "CE " STRINGIFY(BROGUE_MAJOR) "." STRINGIFY(BROGUE_MINOR) ".%hu"
+
+// Dungeon version. Used in seed catalog output.
+#define BROGUE_DUNGEON_VERSION_STRING "CE 1.9"
+
+// Macro to compare BROGUE_MAJOR.BROGUE_MINOR.patchVersion to a.b.c
+#define BROGUE_VERSION_ATLEAST(a,b,c) (BROGUE_MAJOR != (a) ? BROGUE_MAJOR > (a) : BROGUE_MINOR != (b) ? BROGUE_MINOR > (b) : rogue.patchVersion >= (c))
+
+#define DEBUG                           if (rogue.wizard)
+#define MONSTERS_ENABLED                (!rogue.wizard || 1) // Quest room monsters can be generated regardless.
+#define ITEMS_ENABLED                   (!rogue.wizard || 1)
+
+#define D_BULLET_TIME                   (rogue.wizard && 0)
+#define D_WORMHOLING                    (rogue.wizard && 1)
+#define D_IMMORTAL                      (rogue.wizard && 1)
+
+#define D_SAFETY_VISION                 (rogue.wizard && 0)
+#define D_SCENT_VISION                  (rogue.wizard && 0)
+#define D_DISABLE_BACKGROUND_COLORS     (rogue.wizard && 0)
+
+#define D_INSPECT_LEVELGEN              (rogue.wizard && 0)
+#define D_INSPECT_MACHINES              (rogue.wizard && 0)
+
+#define D_MESSAGE_ITEM_GENERATION       (rogue.wizard && 0)
+#define D_MESSAGE_MACHINE_GENERATION    (rogue.wizard && 0)
 
 // set to false to allow multiple loads from the same saved file:
 #define DELETE_SAVE_FILE_AFTER_LOADING  true
 
 // set to false to disable references to keystrokes (e.g. for a tablet port)
-#define KEYBOARD_LABELS false
+#define KEYBOARD_LABELS true
 
 //#define BROGUE_ASSERTS        // introduces several assert()s -- useful to find certain array overruns and other bugs
 //#define AUDIT_RNG             // VERY slow, but sometimes necessary to debug out-of-sync recording errors
@@ -100,17 +128,18 @@ typedef long long fixpt;
 #define GAME_SUFFIX             ".broguesave"
 #define ANNOTATION_SUFFIX       ".txt"
 #define RNG_LOG                 "RNGLog.txt"
+#define SCREENSHOT_SUFFIX       ".png"
 
 #define BROGUE_FILENAME_MAX     (min(1024*4, FILENAME_MAX))
 
 // Date format used when listing recordings and high scores
 #define DATE_FORMAT             "%Y-%m-%d" // see strftime() documentation
 
-// Allows unicode characters:
-#define uchar                   unsigned short
-
 #define MESSAGE_LINES           3
-#define MESSAGE_ARCHIVE_LINES   ROWS
+#define MESSAGE_ARCHIVE_VIEW_LINES ROWS
+#define MESSAGE_ARCHIVE_LINES   (MESSAGE_ARCHIVE_VIEW_LINES*10)
+#define MESSAGE_ARCHIVE_ENTRIES (MESSAGE_ARCHIVE_LINES*4)
+#define MAX_MESSAGE_REPEATS     100
 
 // Size of the entire terminal window. These need to be hard-coded here and in Viewport.h
 #define COLS                    100
@@ -160,157 +189,144 @@ typedef long long fixpt;
 
 // display characters:
 
-#ifdef USE_UNICODE
+enum displayGlyph {
+    G_UP_ARROW = 128,
+    G_DOWN_ARROW,
+    G_POTION,
+    G_GRASS,
+    G_WALL,
+    G_DEMON,
+    G_OPEN_DOOR,
+    G_GOLD,
+    G_CLOSED_DOOR,
+    G_RUBBLE,
+    G_KEY,
+    G_BOG,
+    G_CHAIN_TOP_LEFT,
+    G_CHAIN_BOTTOM_RIGHT,
+    G_CHAIN_TOP_RIGHT,
+    G_CHAIN_BOTTOM_LEFT,
+    G_CHAIN_TOP,
+    G_CHAIN_BOTTOM,
+    G_CHAIN_LEFT,
+    G_CHAIN_RIGHT,
+    G_FOOD,
+    G_UP_STAIRS,
+    G_VENT,
+    G_DOWN_STAIRS,
+    G_PLAYER,
+    G_BOG_MONSTER,
+    G_CENTAUR,
+    G_DRAGON,
+    G_FLAMEDANCER,
+    G_GOLEM,
+    G_TENTACLE_HORROR,
+    G_IFRIT,
+    G_JELLY,
+    G_KRAKEN,
+    G_LICH,
+    G_NAGA,
+    G_OGRE,
+    G_PHANTOM,
+    G_REVENANT,
+    G_SALAMANDER,
+    G_TROLL,
+    G_UNDERWORM,
+    G_VAMPIRE,
+    G_WRAITH,
+    G_ZOMBIE,
+    G_ARMOR,
+    G_STAFF,
+    G_WEB,
+    G_MOUND,
+    G_BLOAT,
+    G_CENTIPEDE,
+    G_DAR_BLADEMASTER,
+    G_EEL,
+    G_FURY,
+    G_GOBLIN,
+    G_IMP,
+    G_JACKAL,
+    G_KOBOLD,
+    G_MONKEY,
+    G_PIXIE,
+    G_RAT,
+    G_SPIDER,
+    G_TOAD,
+    G_BAT,
+    G_WISP,
+    G_PHOENIX,
+    G_ALTAR,
+    G_LIQUID,
+    G_FLOOR,
+    G_CHASM,
+    G_TRAP,
+    G_FIRE,
+    G_FOLIAGE,
+    G_AMULET,
+    G_SCROLL,
+    G_RING,
+    G_WEAPON,
+    G_TURRET,
+    G_TOTEM,
+    G_GOOD_MAGIC,
+    G_BAD_MAGIC,
+    G_DOORWAY,
+    G_CHARM,
+    G_WALL_TOP,
+    G_DAR_PRIESTESS,
+    G_DAR_BATTLEMAGE,
+    G_GOBLIN_MAGIC,
+    G_GOBLIN_CHIEFTAN,
+    G_OGRE_MAGIC,
+    G_GUARDIAN,
+    G_WINGED_GUARDIAN,
+    G_EGG,
+    G_WARDEN,
+    G_DEWAR,
+    G_ANCIENT_SPIRIT,
+    G_LEVER,
+    G_LEVER_PULLED,
+    G_BLOODWORT_STALK,
+    G_FLOOR_ALT,
+    G_UNICORN,
+    G_GEM,
+    G_WAND,
+    G_GRANITE,
+    G_CARPET,
+    G_CLOSED_IRON_DOOR,
+    G_OPEN_IRON_DOOR,
+    G_TORCH,
+    G_CRYSTAL,
+    G_PORTCULLIS,
+    G_BARRICADE,
+    G_STATUE,
+    G_CRACKED_STATUE,
+    G_CLOSED_CAGE,
+    G_OPEN_CAGE,
+    G_PEDESTAL,
+    G_CLOSED_COFFIN,
+    G_OPEN_COFFIN,
+    G_MAGIC_GLYPH,
+    G_BRIDGE,
+    G_BONES,
+    G_ELECTRIC_CRYSTAL,
+    G_ASHES,
+    G_BEDROLL,
+    G_BLOODWORT_POD,
+    G_VINE,
+    G_NET,
+    G_LICHEN,
+    G_PIPES,
+    G_SAC_ALTAR,
+    G_ORB_ALTAR
+};
 
-#define FLOOR_CHAR      0x00b7
-#define LIQUID_CHAR     '~'
-#define CHASM_CHAR       ':'
-#define TRAP_CHAR       0x25c7
-#define FIRE_CHAR       0x22CF
-#define GRASS_CHAR      '"'
-#define BRIDGE_CHAR     '='
-#define DESCEND_CHAR    '>'
-#define ASCEND_CHAR     '<'
-#define WALL_CHAR       '#'
-#define DOOR_CHAR       '+'
-#define OPEN_DOOR_CHAR  '\''
-#define ASH_CHAR        '\''
-#define BONES_CHAR      ','
-#define MUD_CHAR        ','
-#define WEB_CHAR        ':'
-//#define FOLIAGE_CHAR  0x03A8 // lower-case psi
-#define FOLIAGE_CHAR    0x2648 // Aries symbol
-#define VINE_CHAR       ':'
-#define ALTAR_CHAR      '|'
-#define LEVER_CHAR      '/'
-#define LEVER_PULLED_CHAR '\\'
-#define STATUE_CHAR     0x00df
-#define VENT_CHAR       '='
-#define DEWAR_CHAR      '&'
-
-#define TRAMPLED_FOLIAGE_CHAR   '"'     // 0x2034 // 0x2037
-
-#define PLAYER_CHAR     '@'
-
-#define AMULET_CHAR     0x2640
-#define FOOD_CHAR       ';'
-#define SCROLL_CHAR     0x266A//'?'     // 0x039E
-#define RING_CHAR       0xffee
-#define CHARM_CHAR      0x03DF
-#define POTION_CHAR     '!'
-#define ARMOR_CHAR      '['
-#define WEAPON_CHAR     0x2191
-#define STAFF_CHAR      '\\'
-#define WAND_CHAR       '~'
-#define GOLD_CHAR       '*'
-#define GEM_CHAR        0x25cf
-#define TOTEM_CHAR      0x26b2
-#define TURRET_CHAR     0x25cf
-#define UNICORN_CHAR    0x00da
-#define KEY_CHAR        '-'
-#define ELECTRIC_CRYSTAL_CHAR 0x00A4
-
-#define UP_ARROW_CHAR       0x2191
-#define DOWN_ARROW_CHAR     0x2193
-#define LEFT_ARROW_CHAR     0x2190
-#define RIGHT_ARROW_CHAR    0x2192
-#define UP_TRIANGLE_CHAR    0x2206
-#define DOWN_TRIANGLE_CHAR  0x2207
-#define OMEGA_CHAR          0x03A9
-#define THETA_CHAR          0x03B8
-#define LAMDA_CHAR          0x03BB
-#define KOPPA_CHAR          0x03DE
-#define LOZENGE_CHAR        0x29EB
-#define CROSS_PRODUCT_CHAR  0x2A2F
-
-#define CHAIN_TOP_LEFT      '\\'
-#define CHAIN_BOTTOM_RIGHT  '\\'
-#define CHAIN_TOP_RIGHT     '/'
-#define CHAIN_BOTTOM_LEFT   '/'
-#define CHAIN_TOP           '|'
-#define CHAIN_BOTTOM        '|'
-#define CHAIN_LEFT          '-'
-#define CHAIN_RIGHT         '-'
-
-// Seth: the two original defintions are not defined in my font set
-#define BAD_MAGIC_CHAR        0x1ECD
-#define GOOD_MAGIC_CHAR        0x00F2
-
-#else
-
-#define FLOOR_CHAR      '.'
-#define LIQUID_CHAR     '~'
-#define CHASM_CHAR      ':'
-#define TRAP_CHAR       '%'
-#define FIRE_CHAR       '^'
-#define GRASS_CHAR      '"'
-#define BRIDGE_CHAR     '='
-#define DESCEND_CHAR    '>'
-#define ASCEND_CHAR     '<'
-#define WALL_CHAR       '#'
-#define DOOR_CHAR       '+'
-#define OPEN_DOOR_CHAR  '\''
-#define ASH_CHAR        '\''
-#define BONES_CHAR      ','
-#define MUD_CHAR        ','
-#define WEB_CHAR        ':'
-#define FOLIAGE_CHAR    '&'
-#define VINE_CHAR       ':'
-#define ALTAR_CHAR      '|'
-#define LEVER_CHAR      '/'
-#define LEVER_PULLED_CHAR '\\'
-#define STATUE_CHAR     '&'
-#define VENT_CHAR       '='
-#define DEWAR_CHAR      '&'
-
-#define TRAMPLED_FOLIAGE_CHAR   '"'
-
-#define PLAYER_CHAR     '@'
-
-#define AMULET_CHAR     ','
-#define FOOD_CHAR       ';'
-#define SCROLL_CHAR     '?'
-#define RING_CHAR       '='
-#define CHARM_CHAR      '+'
-#define POTION_CHAR     '!'
-#define ARMOR_CHAR      '['
-#define WEAPON_CHAR     '('
-#define STAFF_CHAR      '\\'
-#define WAND_CHAR       '~'
-#define GOLD_CHAR       '*'
-#define GEM_CHAR        '+'
-#define TOTEM_CHAR      '0'
-#define TURRET_CHAR     '*'
-#define UNICORN_CHAR    'U'
-#define KEY_CHAR        '-'
-#define ELECTRIC_CRYSTAL_CHAR '$'
-
-#define UP_ARROW_CHAR       '^'
-#define DOWN_ARROW_CHAR     'v'
-#define LEFT_ARROW_CHAR     '<'
-#define RIGHT_ARROW_CHAR    '>'
-#define UP_TRIANGLE_CHAR    '^'
-#define DOWN_TRIANGLE_CHAR  'v'
-#define OMEGA_CHAR          '^'
-#define THETA_CHAR          '0'
-#define LAMDA_CHAR          '\\'
-#define KOPPA_CHAR          'k'
-#define LOZENGE_CHAR        '+'
-#define CROSS_PRODUCT_CHAR  'x'
-
-#define CHAIN_TOP_LEFT      '\\'
-#define CHAIN_BOTTOM_RIGHT  '\\'
-#define CHAIN_TOP_RIGHT     '/'
-#define CHAIN_BOTTOM_LEFT   '/'
-#define CHAIN_TOP           '|'
-#define CHAIN_BOTTOM        '|'
-#define CHAIN_LEFT          '-'
-#define CHAIN_RIGHT         '-'
-
-#define BAD_MAGIC_CHAR      '+'
-#define GOOD_MAGIC_CHAR     '$'
-
-#endif
+enum graphicsModes {
+    TEXT_GRAPHICS,
+    TILES_GRAPHICS,
+    HYBRID_GRAPHICS, // text for items and creatures, tiles for environment
+};
 
 enum eventTypes {
     KEYSTROKE,
@@ -326,6 +342,14 @@ enum eventTypes {
     NUMBER_OF_EVENT_TYPES, // unused
 };
 
+enum notificationEventTypes {
+	GAMEOVER_QUIT,
+	GAMEOVER_DEATH,
+	GAMEOVER_VICTORY,
+	GAMEOVER_SUPERVICTORY,
+	GAMEOVER_RECORDING
+};
+
 typedef struct rogueEvent {
     enum eventTypes eventType;
     signed long param1;
@@ -338,13 +362,13 @@ typedef struct rogueHighScoresEntry {
     signed long score;
     char date[100];
     char description[DCOLS];
-    //Seth
+    // Seth:
     unsigned long seed;
 } rogueHighScoresEntry;
 
 typedef struct fileEntry {
     char *path;
-    char date[100];
+    struct tm date;
 } fileEntry;
 
 enum RNGs {
@@ -689,6 +713,8 @@ enum lightType {
     DEMONIC_STATUE_LIGHT,
     NUMBER_LIGHT_KINDS
 };
+
+#define NUMBER_ITEM_CATEGORIES  13
 
 // Item categories
 enum itemCategory {
@@ -1051,7 +1077,7 @@ enum tileFlags {
     IS_IN_MACHINE               = (IS_IN_ROOM_MACHINE | IS_IN_AREA_MACHINE),    // sacred ground; don't generate items here, or teleport randomly to it
 
     PERMANENT_TILE_FLAGS = (DISCOVERED | MAGIC_MAPPED | ITEM_DETECTED | HAS_ITEM | HAS_DORMANT_MONSTER
-                            | HAS_STAIRS | SEARCHED_FROM_HERE | PRESSURE_PLATE_DEPRESSED
+                            | HAS_MONSTER | HAS_STAIRS | SEARCHED_FROM_HERE | PRESSURE_PLATE_DEPRESSED
                             | STABLE_MEMORY | KNOWN_TO_BE_TRAP_FREE | IN_LOOP
                             | IS_CHOKEPOINT | IS_GATE_SITE | IS_IN_MACHINE | IMPREGNABLE),
 
@@ -1119,14 +1145,16 @@ enum tileFlags {
 #define UNEQUIP_KEY         'r'
 #define APPLY_KEY           'a'
 #define THROW_KEY           't'
+#define RETHROW_KEY         'T'
 #define RELABEL_KEY         'R'
+#define SWAP_KEY            'w'
 #define TRUE_COLORS_KEY     '\\'
 #define AGGRO_DISPLAY_KEY   ']'
 #define DROP_KEY            'd'
 #define CALL_KEY            'c'
 #define QUIT_KEY            'Q'
 #define MESSAGE_ARCHIVE_KEY 'M'
-#define HELP_KEY            '?'
+#define BROGUE_HELP_KEY     '?'
 #define DISCOVERIES_KEY     'D'
 #define EXPLORE_KEY         'x'
 #define AUTOPLAY_KEY        'A'
@@ -1142,6 +1170,8 @@ enum tileFlags {
 #define LOAD_SAVED_GAME_KEY 'O'
 #define SAVE_GAME_KEY       'S'
 #define NEW_GAME_KEY        'N'
+#define GRAPHICS_KEY        'G'
+#define SWITCH_TO_PLAYING_KEY 'P'
 #define NUMPAD_0            48
 #define NUMPAD_1            49
 #define NUMPAD_2            50
@@ -1154,6 +1184,7 @@ enum tileFlags {
 #define NUMPAD_9            57
 #define PAGE_UP_KEY         63276
 #define PAGE_DOWN_KEY       63277
+#define PRINTSCREEN_KEY     '\054'
 
 #define UNKNOWN_KEY         (128+19)
 
@@ -1202,8 +1233,6 @@ boolean cellHasTerrainFlag(short x, short y, unsigned long flagMask);
                                             || (rogue.playbackOmniscience \
                                                 && (pmap[x][y].layers[DUNGEON] != GRANITE || (pmap[x][y].flags & DISCOVERED))))
 
-#define CYCLE_MONSTERS_AND_PLAYERS(x)       for ((x) = &player; (x) != NULL; (x) = ((x) == &player ? monsters->nextCreature : (x)->nextCreature))
-
 #define assureCosmeticRNG                   short oldRNG = rogue.RNG; rogue.RNG = RNG_COSMETIC;
 #define restoreRNG                          rogue.RNG = oldRNG;
 
@@ -1226,11 +1255,10 @@ enum dungeonLayers {
 
 // keeps track of graphics so we only redraw if the cell has changed:
 typedef struct cellDisplayBuffer {
-    uchar character;
+    enum displayGlyph character;
     char foreColorComponents[3];
     char backColorComponents[3];
     char opacity;
-    boolean needsUpdate;
 } cellDisplayBuffer;
 
 typedef struct pcell {                              // permanent cell; have to remember this stuff to save levels
@@ -1247,6 +1275,7 @@ typedef struct pcell {                              // permanent cell; have to r
     unsigned long rememberedCellFlags;              // map cell flags the player remembers from that spot
     unsigned long rememberedTerrainFlags;           // terrain flags the player remembers from that spot
     unsigned long rememberedTMFlags;                // TM flags the player remembers from that spot
+    short exposedToFire;                            // number of times the tile has been exposed to fire since the last environment update
 } pcell;
 
 typedef struct tcell {          // transient cell; stuff we don't need to remember between levels
@@ -1329,7 +1358,7 @@ typedef struct item {
     enum monsterTypes vorpalEnemy;
     short strengthRequired;
     unsigned short quiverNumber;
-    uchar displayChar;
+    enum displayGlyph displayChar;
     color *foreColor;
     color *inventoryColor;
     short quantity;
@@ -1339,6 +1368,8 @@ typedef struct item {
     short yLoc;
     keyLocationProfile keyLoc[KEY_ID_MAXIMUM];
     short originDepth;
+    unsigned long spawnTurnNumber;
+    unsigned long lastUsed[3];         // Absolute turns last applied
     struct item *nextItem;
 } item;
 
@@ -1751,7 +1782,7 @@ typedef struct bolt {
     char name[DCOLS];
     char description[COLS];
     char abilityDescription[COLS*2];
-    uchar theChar;
+    enum displayGlyph theChar;
     const color *foreColor;
     const color *backColor;
     short boltEffect;
@@ -1792,7 +1823,7 @@ typedef struct dungeonFeature {
 // Terrain types:
 typedef struct floorTileType {
     // appearance:
-    uchar displayChar;
+    enum displayGlyph displayChar;
     const color *foreColor;
     const color *backColor;
     short drawPriority;                     // priority (lower number means higher priority); governs drawing as well as tile replacement comparisons.
@@ -1848,28 +1879,31 @@ enum terrainMechanicalFlagCatalog {
     TM_IS_SECRET                    = Fl(0),        // successful search or being stepped on while visible transforms it into discoverType
     TM_PROMOTES_WITH_KEY            = Fl(1),        // promotes if the key is present on the tile (in your pack, carried by monster, or lying on the ground)
     TM_PROMOTES_WITHOUT_KEY         = Fl(2),        // promotes if the key is NOT present on the tile (in your pack, carried by monster, or lying on the ground)
-    TM_PROMOTES_ON_STEP             = Fl(3),        // promotes when a creature, player or item is on the tile (whether or not levitating)
-    TM_PROMOTES_ON_ITEM_PICKUP      = Fl(4),        // promotes when an item is lifted from the tile (primarily for altars)
-    TM_PROMOTES_ON_PLAYER_ENTRY     = Fl(5),        // promotes when the player enters the tile (whether or not levitating)
-    TM_PROMOTES_ON_SACRIFICE_ENTRY  = Fl(6),        // promotes when the sacrifice target enters the tile (whether or not levitating)
-    TM_PROMOTES_ON_ELECTRICITY      = Fl(7),        // promotes when hit by a lightning bolt
-    TM_ALLOWS_SUBMERGING            = Fl(8),        // allows submersible monsters to submerge in this terrain
-    TM_IS_WIRED                     = Fl(9),        // if wired, promotes when powered, and sends power when promoting
-    TM_IS_CIRCUIT_BREAKER           = Fl(10),       // prevents power from circulating in its machine
-    TM_GAS_DISSIPATES               = Fl(11),       // does not just hang in the air forever
-    TM_GAS_DISSIPATES_QUICKLY       = Fl(12),       // dissipates quickly
-    TM_EXTINGUISHES_FIRE            = Fl(13),       // extinguishes burning terrain or creatures
-    TM_VANISHES_UPON_PROMOTION      = Fl(14),       // vanishes when creating promotion dungeon feature, even if the replacement terrain priority doesn't require it
-    TM_REFLECTS_BOLTS               = Fl(15),       // magic bolts reflect off of its surface randomly (similar to pmap flag IMPREGNABLE)
-    TM_STAND_IN_TILE                = Fl(16),       // earthbound creatures will be said to stand "in" the tile, not on it
-    TM_LIST_IN_SIDEBAR              = Fl(17),       // terrain will be listed in the sidebar with a description of the terrain type
-    TM_VISUALLY_DISTINCT            = Fl(18),       // terrain will be color-adjusted if necessary so the character stands out from the background
-    TM_BRIGHT_MEMORY                = Fl(19),       // no blue fade when this tile is out of sight
-    TM_EXPLOSIVE_PROMOTE            = Fl(20),       // when burned, will promote to promoteType instead of burningType if surrounded by tiles with T_IS_FIRE or TM_EXPLOSIVE_PROMOTE
-    TM_CONNECTS_LEVEL               = Fl(21),       // will be treated as passable for purposes of calculating level connectedness, irrespective of other aspects of this terrain layer
-    TM_INTERRUPT_EXPLORATION_WHEN_SEEN = Fl(22),    // will generate a message when discovered during exploration to interrupt exploration
-    TM_INVERT_WHEN_HIGHLIGHTED      = Fl(23),       // will flip fore and back colors when highlighted with pathing
-    TM_SWAP_ENCHANTS_ACTIVATION     = Fl(24),       // in machine, swap item enchantments when two suitable items are on this terrain, and activate the machine when that happens
+    TM_PROMOTES_ON_CREATURE         = Fl(3),        // promotes when a creature or player is on the tile (whether or not levitating)
+    TM_PROMOTES_ON_ITEM             = Fl(4),        // promotes when an item is on the tile
+    TM_PROMOTES_ON_ITEM_PICKUP      = Fl(5),        // promotes when an item is lifted from the tile (primarily for altars)
+    TM_PROMOTES_ON_PLAYER_ENTRY     = Fl(6),        // promotes when the player enters the tile (whether or not levitating)
+    TM_PROMOTES_ON_SACRIFICE_ENTRY  = Fl(7),        // promotes when the sacrifice target enters the tile (whether or not levitating)
+    TM_PROMOTES_ON_ELECTRICITY      = Fl(8),        // promotes when hit by a lightning bolt
+    TM_ALLOWS_SUBMERGING            = Fl(9),        // allows submersible monsters to submerge in this terrain
+    TM_IS_WIRED                     = Fl(10),        // if wired, promotes when powered, and sends power when promoting
+    TM_IS_CIRCUIT_BREAKER           = Fl(11),       // prevents power from circulating in its machine
+    TM_GAS_DISSIPATES               = Fl(12),       // does not just hang in the air forever
+    TM_GAS_DISSIPATES_QUICKLY       = Fl(13),       // dissipates quickly
+    TM_EXTINGUISHES_FIRE            = Fl(14),       // extinguishes burning terrain or creatures
+    TM_VANISHES_UPON_PROMOTION      = Fl(15),       // vanishes when creating promotion dungeon feature, even if the replacement terrain priority doesn't require it
+    TM_REFLECTS_BOLTS               = Fl(16),       // magic bolts reflect off of its surface randomly (similar to pmap flag IMPREGNABLE)
+    TM_STAND_IN_TILE                = Fl(17),       // earthbound creatures will be said to stand "in" the tile, not on it
+    TM_LIST_IN_SIDEBAR              = Fl(18),       // terrain will be listed in the sidebar with a description of the terrain type
+    TM_VISUALLY_DISTINCT            = Fl(19),       // terrain will be color-adjusted if necessary so the character stands out from the background
+    TM_BRIGHT_MEMORY                = Fl(20),       // no blue fade when this tile is out of sight
+    TM_EXPLOSIVE_PROMOTE            = Fl(21),       // when burned, will promote to promoteType instead of burningType if surrounded by tiles with T_IS_FIRE or TM_EXPLOSIVE_PROMOTE
+    TM_CONNECTS_LEVEL               = Fl(22),       // will be treated as passable for purposes of calculating level connectedness, irrespective of other aspects of this terrain layer
+    TM_INTERRUPT_EXPLORATION_WHEN_SEEN = Fl(23),    // will generate a message when discovered during exploration to interrupt exploration
+    TM_INVERT_WHEN_HIGHLIGHTED      = Fl(24),       // will flip fore and back colors when highlighted with pathing
+    TM_SWAP_ENCHANTS_ACTIVATION     = Fl(25),       // in machine, swap item enchantments when two suitable items are on this terrain, and activate the machine when that happens
+
+    TM_PROMOTES_ON_STEP             = (TM_PROMOTES_ON_CREATURE | TM_PROMOTES_ON_ITEM),
 };
 
 enum statusEffects {
@@ -1892,6 +1926,7 @@ enum statusEffects {
     STATUS_EXPLOSION_IMMUNITY,
     STATUS_NUTRITION,
     STATUS_ENTERS_LEVEL_IN,
+    STATUS_ENRAGED, // temporarily ignores normal MA_AVOID_CORRIDORS behavior
     STATUS_MAGICAL_FEAR,
     STATUS_ENTRANCED,
     STATUS_DARKNESS,
@@ -2029,13 +2064,14 @@ enum monsterBookkeepingFlags {
     MB_IS_DORMANT               = Fl(21),   // lurking, waiting to burst out
     MB_HAS_SOUL                 = Fl(22),   // slaying the monster will count toward weapon auto-ID
     MB_ALREADY_SEEN             = Fl(23),   // seeing this monster won't interrupt exploration
+    MB_HAS_ENTRANCED_MOVED      = Fl(24)    // has already moved while entranced and should not move again
 };
 
 // Defines all creatures, which include monsters and the player:
 typedef struct creatureType {
     enum monsterTypes monsterID; // index number for the monsterCatalog
     char monsterName[COLS];
-    uchar displayChar;
+    enum displayGlyph displayChar;
     const color *foreColor;
     short maxHP;
     short defense;
@@ -2046,6 +2082,7 @@ typedef struct creatureType {
     short attackSpeed;
     enum dungeonFeatureTypes bloodType;
     enum lightType intrinsicLightType;
+    boolean isLarge;    // used for size of psychic emanation
     short DFChance;                     // percent chance to spawn the dungeon feature per awake turn
     enum dungeonFeatureTypes DFType;    // kind of dungeon feature
     enum boltType bolts[20];
@@ -2091,6 +2128,7 @@ typedef struct mutation {
     unsigned long forbiddenFlags;
     unsigned long forbiddenAbilityFlags;
     char description[1000];
+    boolean canBeNegated;
 } mutation;
 
 typedef struct hordeType {
@@ -2132,6 +2170,7 @@ typedef struct creature {
     enum creatureModes creatureMode;    // current behavioral mode (higher-level than state)
 
     short mutationIndex;                // what mutation the monster has (or -1 for none)
+    boolean wasNegated;                 // the monster has lost abilities due to negation
 
     // Waypoints:
     short targetWaypointIndex;          // the index number of the waypoint we're pathing toward
@@ -2166,11 +2205,25 @@ typedef struct creature {
     short newPowerCount;                // how many more times this monster can absorb a fallen monster
     short totalPowerCount;              // how many times has the monster been empowered? Used to recover abilities when negated.
 
-    struct creature *leader;            // only if monster is a follower
-    struct creature *carriedMonster;    // when vampires turn into bats, one of the bats restores the vampire when it dies
-    struct creature *nextCreature;
-    struct item *carriedItem;           // only used for monsters
+    struct creature *leader;                 // only if monster is a follower
+    struct creature *carriedMonster; // when vampires turn into bats, one of the bats restores the vampire when it dies
+    struct item *carriedItem;                // only used for monsters
 } creature;
+
+typedef struct creatureListNode {
+    creature *creature;
+    // A list node is just a creature that also knows who comes next.
+    struct creatureListNode *nextCreature;
+} creatureListNode;
+
+typedef struct creatureList {
+    creatureListNode* head;
+} creatureList;
+
+typedef struct creatureIterator {
+    creatureList *list; // used for restarting
+    creatureListNode *next;
+} creatureIterator;
 
 enum NGCommands {
     NG_NOTHING = 0,
@@ -2179,7 +2232,6 @@ enum NGCommands {
     NG_OPEN_GAME,
     NG_VIEW_RECORDING,
     NG_HIGH_SCORES,
-    NG_SCUM,
     NG_QUIT,
 };
 
@@ -2192,18 +2244,22 @@ enum featTypes {
     FEAT_SPECIALIST,
     FEAT_JELLYMANCER,
     FEAT_INDOMITABLE,
-    FEAT_MYSTIC,
+    FEAT_ASCETIC,
     FEAT_DRAGONSLAYER,
     FEAT_PALADIN,
+    FEAT_TONE,
 
     FEAT_COUNT,
 };
 
 // these are basically global variables pertaining to the game state and player's unique variables:
 typedef struct playerCharacter {
+    boolean wizard;                     // in wizard mode
+
     short depthLevel;                   // which dungeon level are we on
     short deepestLevel;
     boolean disturbed;                  // player should stop auto-acting
+    boolean gameInProgress;             // the game is in progress (the player has not died, won or quit yet)
     boolean gameHasEnded;               // stop everything and go to death screen
     boolean highScoreSaved;             // so that it saves the high score only once
     boolean blockCombatText;            // busy auto-fighting
@@ -2227,7 +2283,7 @@ typedef struct playerCharacter {
     boolean trueColorMode;              // whether lighting effects are disabled
     boolean displayAggroRangeMode;      // whether your stealth range is displayed
     boolean quit;                       // to skip the typical end-game theatrics when the player quits
-    unsigned long seed;                 // the master seed for generating the entire dungeon
+    uint64_t seed;                      // the master seed for generating the entire dungeon
     short RNG;                          // which RNG are we currently using?
     unsigned long gold;                 // how much gold we have
     unsigned long goldGenerated;        // how much gold has been generated on the levels, not counting gold held by monsters
@@ -2238,6 +2294,8 @@ typedef struct playerCharacter {
     item *armor;
     item *ringLeft;
     item *ringRight;
+    item *swappedIn;
+    item *swappedOut;
 
     flare **flares;
     short flareCount;
@@ -2262,6 +2320,7 @@ typedef struct playerCharacter {
 
     short cursorLoc[2];                 // used for the return key functionality
     creature *lastTarget;               // to keep track of the last monster the player has thrown at or zapped
+    item *lastItemThrown;
     short rewardRoomsGenerated;         // to meter the number of reward machines
     short machineNumber;                // so each machine on a level gets a unique number
     short sidebarLocationList[ROWS*2][2];   // to keep track of which location each line of the sidebar references
@@ -2271,7 +2330,10 @@ typedef struct playerCharacter {
     short **mapToSafeTerrain;           // so monsters can get to safety
 
     // recording info
+    boolean recording;                  // whether we are recording the game
     boolean playbackMode;               // whether we're viewing a recording instead of playing
+    unsigned short patchVersion;        // what patch version of the game this was recorded on
+    char versionString[16];             // the version string saved into the recording file
     unsigned long currentTurnNumber;    // how many turns have elapsed
     unsigned long howManyTurns;         // how many turns are in this recording
     short howManyDepthChanges;          // how many times the player changes depths
@@ -2319,7 +2381,7 @@ typedef struct playerCharacter {
     // What do you want to do, player -- play, play with seed, resume, recording, high scores or quit?
     enum NGCommands nextGame;
     char nextGamePath[BROGUE_FILENAME_MAX];
-    unsigned long nextGameSeed;
+    uint64_t nextGameSeed;
 } playerCharacter;
 
 // Stores the necessary info about a level so it can be regenerated:
@@ -2327,10 +2389,10 @@ typedef struct levelData {
     boolean visited;
     pcell mapStorage[DCOLS][DROWS];
     struct item *items;
-    struct creature *monsters;
-    struct creature *dormantMonsters;
+    struct creatureList monsters;
+    struct creatureList dormantMonsters;
     short **scentMap;
-    unsigned long levelSeed;
+    uint64_t levelSeed;
     short upStairsLoc[2];
     short downStairsLoc[2];
     short playerExitedVia[2];
@@ -2537,9 +2599,6 @@ typedef struct feat {
 #define PDS_OBSTRUCTION -2
 #define PDS_CELL(map, x, y) ((map)->links + ((x) + DCOLS * (y)))
 
-typedef struct pdsLink pdsLink;
-typedef struct pdsMap pdsMap;
-
 typedef struct brogueButton {
     char text[COLS*3];          // button label; can include color escapes
     short x;                    // button's leftmost cell will be drawn at (x, y)
@@ -2547,7 +2606,7 @@ typedef struct brogueButton {
     signed long hotkey[10];     // up to 10 hotkeys to trigger the button
     color buttonColor;          // background of the button; further gradient-ized when displayed
     short opacity;              // further reduced by 50% if not enabled
-    uchar symbol[COLS];         // Automatically replace the nth asterisk in the button label text with
+    enum displayGlyph symbol[COLS];         // Automatically replace the nth asterisk in the button label text with
                                 // the nth character supplied here, if one is given.
                                 // (Primarily to display magic character and item symbols in the inventory display.)
     unsigned long flags;
@@ -2591,30 +2650,52 @@ typedef struct buttonState {
     cellDisplayBuffer rbuf[COLS][ROWS]; // Reversion screen state.
 } buttonState;
 
+enum messageFlags {
+    REQUIRE_ACKNOWLEDGMENT        = Fl(0),
+    REFRESH_SIDEBAR               = Fl(1),
+    FOLDABLE                      = Fl(2),
+};
+
+typedef struct archivedMessage {
+    char message[COLS*2];
+    unsigned char count;          // how many times this message appears
+    unsigned long turn;           // player turn of the first occurrence
+    enum messageFlags flags;
+} archivedMessage;
+
+extern boolean serverMode;
+extern boolean hasGraphics;
+extern enum graphicsModes graphicsMode;
+
 #if defined __cplusplus
 extern "C" {
 #endif
 
-    fixpt fp_sqrt(fixpt val);
+    // Utilities.c - String functions
+    boolean endswith(const char *str, const char *ending);
+    void append(char *str, char *ending, int bufsize);
 
     void rogueMain();
     void executeEvent(rogueEvent *theEvent);
     boolean fileExists(const char *pathname);
     boolean chooseFile(char *path, char *prompt, char *defaultName, char *suffix);
     boolean openFile(const char *path);
-    void initializeRogue(unsigned long seed);
+    void initializeRogue(uint64_t seed);
     void gameOver(char *killedBy, boolean useCustomPhrasing);
     void victory(boolean superVictory);
     void enableEasyMode();
-    int rand_range(int lowerBound, int upperBound);
-    unsigned long seedRandomGenerator(unsigned long seed);
+    boolean tryParseUint64(char *str, uint64_t *num);
+    uint64_t rand_64bits();
+    long rand_range(long lowerBound, long upperBound);
+    uint64_t seedRandomGenerator(uint64_t seed);
     short randClumpedRange(short lowerBound, short upperBound, short clumpFactor);
     short randClump(randomRange theRange);
     boolean rand_percent(short percent);
     void shuffleList(short *list, short listLength);
     void fillSequentialList(short *list, short listLength);
     fixpt fp_round(fixpt x);
-    fixpt fp_pow(fixpt base, fixpt expn);
+    fixpt fp_pow(fixpt base, int expn);
+    fixpt fp_sqrt(fixpt val);
     short unflag(unsigned long flag);
     void considerCautiousMode();
     void refreshScreen();
@@ -2624,7 +2705,7 @@ extern "C" {
     void bakeColor(color *theColor);
     void shuffleTerrainColors(short percentOfCells, boolean refreshCells);
     void normColor(color *baseColor, const short aggregateMultiplier, const short colorTranslation);
-    void getCellAppearance(short x, short y, uchar *returnChar, color *returnForeColor, color *returnBackColor);
+    void getCellAppearance(short x, short y, enum displayGlyph *returnChar, color *returnForeColor, color *returnBackColor);
     void logBuffer(char array[DCOLS][DROWS]);
     //void logBuffer(short **array);
     boolean search(short searchStrength);
@@ -2657,20 +2738,22 @@ extern "C" {
     void zeroOutGrid(char grid[DCOLS][DROWS]);
     short oppositeDirection(short theDir);
 
-    void plotChar(uchar inputChar,
+    void plotChar(enum displayGlyph inputChar,
                   short xLoc, short yLoc,
                   short backRed, short backGreen, short backBlue,
                   short foreRed, short foreGreen, short foreBlue);
     boolean pauseForMilliseconds(short milliseconds);
     boolean isApplicationActive();
     void nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textInput, boolean colorsDance);
+    void notifyEvent(short eventId, int data1, int data2, const char *str1, const char *str2);
+    boolean takeScreenshot();
+    enum graphicsModes setGraphicsMode(enum graphicsModes mode);
     boolean controlKeyIsDown();
     boolean shiftKeyIsDown();
     short getHighScoresList(rogueHighScoresEntry returnList[HIGH_SCORES_COUNT]);
     boolean saveHighScore(rogueHighScoresEntry theEntry);
-    void initializeBrogueSaveLocation();
     fileEntry *listFiles(short *fileCount, char **dynamicMemoryBuffer);
-    void initializeLaunchArguments(enum NGCommands *command, char *path, unsigned long *seed);
+    void initializeLaunchArguments(enum NGCommands *command, char *path, uint64_t *seed);
 
     char nextKeyPress(boolean textInput);
     void refreshSideBar(short focusX, short focusY, boolean focusedEntityMustGoFirst);
@@ -2720,9 +2803,9 @@ extern "C" {
     void colorBlendCell(short x, short y, color *hiliteColor, short hiliteStrength);
     void hiliteCell(short x, short y, const color *hiliteColor, short hiliteStrength, boolean distinctColors);
     void colorMultiplierFromDungeonLight(short x, short y, color *editColor);
-    void plotCharWithColor(uchar inputChar, short xLoc, short yLoc, const color *cellForeColor, const color *cellBackColor);
-    void plotCharToBuffer(uchar inputChar, short x, short y, color *foreColor, color *backColor, cellDisplayBuffer dbuf[COLS][ROWS]);
-    void plotForegroundChar(uchar inputChar, short x, short y, color *foreColor, boolean affectedByLighting);
+    void plotCharWithColor(enum displayGlyph inputChar, short xLoc, short yLoc, const color *cellForeColor, const color *cellBackColor);
+    void plotCharToBuffer(enum displayGlyph inputChar, short x, short y, color *foreColor, color *backColor, cellDisplayBuffer dbuf[COLS][ROWS]);
+    void plotForegroundChar(enum displayGlyph inputChar, short x, short y, color *foreColor, boolean affectedByLighting);
     void commitDraws();
     void dumpLevelToScreen();
     void hiliteCharGrid(char hiliteCharGrid[DCOLS][DROWS], color *hiliteColor, short hiliteStrength);
@@ -2756,6 +2839,7 @@ extern "C" {
     void startLevel (short oldLevelNumber, short stairDirection);
     void updateMinersLightRadius();
     void freeCreature(creature *monst);
+    void freeCreatureList(creatureList *list);
     void emptyGraveyard();
     void freeEverything();
     boolean randomMatchingLocation(short *x, short *y, short dungeonType, short liquidType, short terrainType);
@@ -2830,11 +2914,14 @@ extern "C" {
     void playerTurnEnded();
     void resetScentTurnNumber();
     void displayMonsterFlashes(boolean flashingEnabled);
+    void clearMessageArchive();
+    void formatRecentMessages(char buf[][COLS*2], size_t height, short *linesFormatted, short *latestMessageLines);
+    void displayRecentMessages();
     void displayMessageArchive();
-    void temporaryMessage(char *msg1, boolean requireAcknowledgment);
-    void messageWithColor(char *msg, color *theColor, boolean requireAcknowledgment);
+    void temporaryMessage(const char *msg1, enum messageFlags flags);
+    void messageWithColor(char *msg, color *theColor, enum messageFlags flags);
     void flavorMessage(char *msg);
-    void message(const char *msg, boolean requireAcknowledgment);
+    void message(const char *msg, enum messageFlags flags);
     void displayMoreSignWithoutWaitingForAcknowledgment();
     void displayMoreSign();
     short encodeMessageColor(char *msg, short i, const color *theColor);
@@ -2862,7 +2949,16 @@ extern "C" {
     short chooseMonster(short forLevel);
     creature *spawnHorde(short hordeID, short x, short y, unsigned long forbiddenFlags, unsigned long requiredFlags);
     void fadeInMonster(creature *monst);
-    boolean removeMonsterFromChain(creature *monst, creature *theChain);
+
+    creatureList createCreatureList();
+    creatureIterator iterateCreatures(creatureList *list);
+    boolean hasNextCreature(creatureIterator iter);
+    creature *nextCreature(creatureIterator *iter);
+    void restartIterator(creatureIterator *iter);
+    void prependCreature(creatureList *list, creature *add);
+    boolean removeCreature(creatureList *list, creature *remove);
+    creature *firstCreature(creatureList *list);
+
     boolean monsterWillAttackTarget(const creature *attacker, const creature *defender);
     boolean monstersAreTeammates(const creature *monst1, const creature *monst2);
     boolean monstersAreEnemies(const creature *monst1, const creature *monst2);
@@ -2897,6 +2993,7 @@ extern "C" {
     void moralAttack(creature *attacker, creature *defender);
     short runicWeaponChance(item *theItem, boolean customEnchantLevel, fixpt enchantLevel);
     void magicWeaponHit(creature *defender, item *theItem, boolean backstabbed);
+    void disentangle(creature *monst);
     void teleport(creature *monst, short x, short y, boolean respectTerrainAvoidancePreferences);
     void chooseNewWanderDestination(creature *monst);
     boolean canPass(creature *mover, creature *blocker);
@@ -2937,10 +3034,10 @@ extern "C" {
     void pickUpItemAt(short x, short y);
     item *addItemToPack(item *theItem);
     void aggravateMonsters(short distance, short x, short y, const color *flashColor);
-    short getLineCoordinates(short listOfCoordinates[][2], const short originLoc[2], const short targetLoc[2]);
+    short getLineCoordinates(short listOfCoordinates[][2], const short originLoc[2], const short targetLoc[2], const bolt *theBolt);
     void getImpactLoc(short returnLoc[2], const short originLoc[2], const short targetLoc[2],
-                      const short maxDistance, const boolean returnLastEmptySpace);
-    void negate(creature *monst);
+                      const short maxDistance, const boolean returnLastEmptySpace, const bolt *theBolt);
+    boolean negate(creature *monst);
     short monsterAccuracyAdjusted(const creature *monst);
     fixpt monsterDamageAdjustmentAmount(const creature *monst);
     short monsterDefenseAdjusted(const creature *monst);
@@ -2979,6 +3076,8 @@ extern "C" {
     char nextAvailableInventoryCharacter();
     void checkForDisenchantment(item *theItem);
     void updateFloorItems();
+    void itemKindName(item *theItem, char *kindName);
+    void itemRunicName(item *theItem, char *runicName);
     void itemName(item *theItem, char *root, boolean includeDetails, boolean includeArticle, color *baseColor);
     char displayInventory(unsigned short categoryMask,
                           unsigned long requiredFlags,
@@ -2995,9 +3094,9 @@ extern "C" {
     item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind);
     void updateEncumbrance();
     short displayedArmorValue();
-    void strengthCheck(item *theItem);
+    void strengthCheck(item *theItem, boolean noisy);
     void recalculateEquipmentBonuses();
-    void equipItem(item *theItem, boolean force);
+    boolean equipItem(item *theItem, boolean force, item *unequipHint);
     void equip(item *theItem);
     item *keyInPackFor(short x, short y);
     item *keyOnTileAt(short x, short y);
@@ -3051,8 +3150,9 @@ extern "C" {
     void toggleMonsterDormancy(creature *monst);
     void monsterDetails(char buf[], creature *monst);
     void makeMonsterDropItem(creature *monst);
-    void throwCommand(item *theItem);
+    void throwCommand(item *theItem, boolean autoThrow);
     void relabel(item *theItem);
+    void swapLastEquipment();
     void apply(item *theItem, boolean recordCommands);
     boolean itemCanBeCalled(item *theItem);
     void call(item *theItem);
@@ -3073,9 +3173,9 @@ extern "C" {
                               char *prompt,
                               boolean allowInventoryActions);
     item *itemOfPackLetter(char letter);
-    void unequipItem(item *theItem, boolean force);
+    boolean unequipItem(item *theItem, boolean force);
     short magicCharDiscoverySuffix(short category, short kind);
-    uchar itemMagicChar(item *theItem);
+    int itemMagicPolarity(item *theItem);
     item *itemAtLoc(short x, short y);
     item *dropItem(item *theItem);
     itemTable *tableForItemCategory(enum itemCategory theCat, short *kindCount);
@@ -3121,8 +3221,10 @@ extern "C" {
     void recallEvent(rogueEvent *event);
     void pausePlayback();
     void displayAnnotation();
-    void loadSavedGame();
-    void recordKeystroke(uchar keystroke, boolean controlKey, boolean shiftKey);
+    boolean loadSavedGame();
+    void switchToPlaying();
+    void recordKeystroke(int keystroke, boolean controlKey, boolean shiftKey);
+    void cancelKeystroke();
     void recordKeystrokeSequence(unsigned char *commandSequence);
     void recordMouseClick(short x, short y, boolean controlKey, boolean shiftKey);
     void OOSCheck(unsigned long x, short numberOfBytes);
@@ -3131,7 +3233,9 @@ extern "C" {
     void getAvailableFilePath(char *filePath, const char *defaultPath, const char *suffix);
     boolean characterForbiddenInFilename(const char theChar);
     void saveGame();
-    void saveRecording();
+    void saveGameNoPrompt();
+    void saveRecording(char *filePath);
+    void saveRecordingNoPrompt(char *filePath);
     void parseFile();
     void RNGLog(char *message);
 
@@ -3170,8 +3274,10 @@ extern "C" {
     void checkForDungeonErrors();
 
     boolean dialogChooseFile(char *path, const char *suffix, const char *prompt);
+    void quitImmediately();
     void dialogAlert(char *message);
     void mainBrogueJunction();
+    void printSeedCatalog(uint64_t startingSeed, uint64_t numberOfSeedsToScan, unsigned int scanThroughDepth, boolean isCsvFormat);
 
     void initializeButton(brogueButton *button);
     void drawButtonsInState(buttonState *state);
@@ -3194,12 +3300,9 @@ extern "C" {
                           rogueEvent *returnEvent);
 
     void dijkstraScan(short **distanceMap, short **costMap, boolean useDiagonals);
-    void pdsClear(pdsMap *map, short maxDistance, boolean eightWays);
-    void pdsSetDistance(pdsMap *map, short x, short y, short distance);
-    void pdsBatchOutput(pdsMap *map, short **distanceMap);
-    
-#warning outside implementation
-    // SETH: custom function
+
+// #warning outside implementation
+    // Seth: custom function
  //   void submitAchievementForCharString(char *achievementKey);
     
     typedef enum{
@@ -3225,7 +3328,7 @@ extern "C" {
     
     void setBrogueGameEvent(CBrogueGameEvent brogueGameState);
     void requestKeyboardInput(char *string);
-    
+
 #if defined __cplusplus
 }
 #endif
