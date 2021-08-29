@@ -1232,7 +1232,7 @@ void updateVolumetricMedia() {
                 numSpaces = 1;
                 highestNeighborVolume = pmap[i][j].volume;
                 gasType = pmap[i][j].layers[GAS];
-                for (dir = UP; dir< DIRECTION_COUNT; dir = directions(dir + 1)) {
+                for (dir = UP; dir < DIRECTION_COUNT; dir = directions(dir + 1)) {
                     newX = i + nbDirs[dir][0];
                     newY = j + nbDirs[dir][1];
                     if (coordinatesAreInMap(newX, newY)
@@ -1572,7 +1572,7 @@ void updateAllySafetyMap() {
 void resetDistanceCellInGrid(short **grid, short x, short y) {
     enum directions dir;
     short newX, newY;
-    for (dir = UP; dir < 4; dir = directions(dir + 1)) {
+    for (dir = UP; dir < UPLEFT; dir = directions(dir + 1)) {
         newX = x + nbDirs[dir][0];
         newY = y + nbDirs[dir][1];
         if (coordinatesAreInMap(newX, newY)
@@ -2065,7 +2065,7 @@ void decrementPlayerStatus() {
 boolean dangerChanged(boolean danger[4]) {
     enum directions dir;
     short newX, newY;
-    for (dir = UP; dir < 4; dir = directions(dir + 1)) {
+    for (dir = UP; dir < UPLEFT; dir = directions(dir + 1)) {
         newX = player.xLoc + nbDirs[dir][0];
         newY = player.yLoc + nbDirs[dir][1];
         if (danger[dir] != monsterAvoids(&player, newX, newY)) {
@@ -2082,7 +2082,7 @@ void autoRest() {
     short newX, newY;
     enum directions dir;
 
-    for (dir = UP; dir < 4; dir = directions(dir + 1)) {
+    for (dir = UP; dir < UPLEFT; dir = directions(dir + 1)) {
         newX = player.xLoc + nbDirs[dir][0];
         newY = player.yLoc + nbDirs[dir][1];
         danger[dir] = monsterAvoids(&player, newX, newY);
