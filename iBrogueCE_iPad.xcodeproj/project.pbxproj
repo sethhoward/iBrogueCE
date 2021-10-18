@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B5F40754271DE8C3005C2DD9 /* platformdependent.c in Sources */ = {isa = PBXBuildFile; fileRef = B5F40753271DE8C3005C2DD9 /* platformdependent.c */; };
 		C5213CD21B7533AE00E97A27 /* Arial Unicode.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C5213CD11B75308E00E97A27 /* Arial Unicode.ttf */; };
 		C52686AB215C0B5D00033E3F /* PowerTables.c in Sources */ = {isa = PBXBuildFile; fileRef = C52686AA215C0B5D00033E3F /* PowerTables.c */; };
 		C532C8A61971AB8800695956 /* DirectionControlsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C532C8A41971AB8800695956 /* DirectionControlsViewController.m */; };
@@ -33,7 +34,6 @@
 		C57A966F16D7EB5500C233F1 /* Monsters.c in Sources */ = {isa = PBXBuildFile; fileRef = C57A965F16D7EB5500C233F1 /* Monsters.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		C57A967016D7EB5500C233F1 /* Movement.c in Sources */ = {isa = PBXBuildFile; fileRef = C57A966016D7EB5500C233F1 /* Movement.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		C57A967216D7EB5500C233F1 /* Recordings.c in Sources */ = {isa = PBXBuildFile; fileRef = C57A966216D7EB5500C233F1 /* Recordings.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		C57A967316D7EB5500C233F1 /* RogueMain.mm in Sources */ = {isa = PBXBuildFile; fileRef = C57A966416D7EB5500C233F1 /* RogueMain.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		C57A967516DBF1CE00C233F1 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C57A967416DBF1CE00C233F1 /* QuartzCore.framework */; };
 		C5958C6C174AFFBB00519AD9 /* about_brogue.png in Resources */ = {isa = PBXBuildFile; fileRef = C5958C5C174AFFBB00519AD9 /* about_brogue.png */; };
 		C5958C6D174AFFBB00519AD9 /* about_brogue@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C5958C5D174AFFBB00519AD9 /* about_brogue@2x.png */; };
@@ -59,6 +59,7 @@
 		C5D5EC6E16FC07F300E9A9AF /* icon_144x144.png in Resources */ = {isa = PBXBuildFile; fileRef = C5D5EC6D16FC07F300E9A9AF /* icon_144x144.png */; };
 		C5FFC5DD17B9A913007A05F3 /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = C5FFC5DC17B9A913007A05F3 /* Default-Landscape@2x~ipad.png */; };
 		C5FFC5DF17B9A9DB007A05F3 /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = C5FFC5DE17B9A9DB007A05F3 /* Default-Landscape~ipad.png */; };
+		D0AA262E9AAE2270BA0ABBA1 /* RogueMain.mm in Sources */ = {isa = PBXBuildFile; fileRef = C57A966416D7EB5500C233F1 /* RogueMain.mm */; };
 		ECBE68A71EC0D4A200E9F366 /* RogueScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBE68A61EC0D4A200E9F366 /* RogueScene.swift */; };
 		ECBE68A91EC0D4C600E9F366 /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBE68A81EC0D4C600E9F366 /* Cell.swift */; };
 		ECBE68AB1EC0DB1800E9F366 /* SKViewPort.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBE68AA1EC0DB1800E9F366 /* SKViewPort.swift */; };
@@ -67,6 +68,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B5F40753271DE8C3005C2DD9 /* platformdependent.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = platformdependent.c; sourceTree = "<group>"; };
+		B5F40755271DE8EB005C2DD9 /* platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform.h; sourceTree = "<group>"; };
 		C5213CD11B75308E00E97A27 /* Arial Unicode.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Arial Unicode.ttf"; sourceTree = "<group>"; };
 		C5213CD31B75445F00E97A27 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		C52686A6215C0A9800033E3F /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
@@ -235,6 +238,8 @@
 		C57A965316D7EB5500C233F1 /* BrogueCode */ = {
 			isa = PBXGroup;
 			children = (
+				B5F40755271DE8EB005C2DD9 /* platform.h */,
+				B5F40753271DE8C3005C2DD9 /* platformdependent.c */,
 				C5B9B66B17D23BE900D8459E /* Time.mm */,
 				ECE2547B2404464700BAC3F4 /* Math.c */,
 				C57A965416D7EB5500C233F1 /* Architect.c */,
@@ -324,7 +329,7 @@
 				ORGANIZATIONNAME = "Seth howard";
 				TargetAttributes = {
 					C57A962416D7EAD500C233F1 = {
-						DevelopmentTeam = KKMWNTN39N;
+						DevelopmentTeam = 3NJUD9MLAB;
 						LastSwiftMigration = 1000;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -408,6 +413,7 @@
 				C57A966716D7EB5500C233F1 /* Combat.c in Sources */,
 				ECBE68AD1EC0E1C600E9F366 /* BrogueViewController.swift in Sources */,
 				C57A966816D7EB5500C233F1 /* Dijkstra.c in Sources */,
+				B5F40754271DE8C3005C2DD9 /* platformdependent.c in Sources */,
 				C57A966916D7EB5500C233F1 /* Globals.c in Sources */,
 				C57A966A16D7EB5500C233F1 /* Grid.c in Sources */,
 				ECBE68AB1EC0DB1800E9F366 /* SKViewPort.swift in Sources */,
@@ -418,9 +424,9 @@
 				C57A966F16D7EB5500C233F1 /* Monsters.c in Sources */,
 				C57A967016D7EB5500C233F1 /* Movement.c in Sources */,
 				C57A967216D7EB5500C233F1 /* Recordings.c in Sources */,
-				C57A967316D7EB5500C233F1 /* RogueMain.mm in Sources */,
 				ECBE68A71EC0D4A200E9F366 /* RogueScene.swift in Sources */,
 				C5B9B66C17D23BEA00D8459E /* Time.mm in Sources */,
+				D0AA262E9AAE2270BA0ABBA1 /* RogueMain.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -546,7 +552,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 0;
-				DEVELOPMENT_TEAM = KKMWNTN39N;
+				DEVELOPMENT_TEAM = 3NJUD9MLAB;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "iBrogueCE_iPad/iBrogueCE_iPad-Prefix.pch";
@@ -555,7 +561,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MARKETING_VERSION = 1.3.5;
-				PRODUCT_BUNDLE_IDENTIFIER = SethHoward.BrogueCE;
+				PRODUCT_BUNDLE_IDENTIFIER = tk.apollov.BrogueCE;
 				PRODUCT_NAME = BrogueCE;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";

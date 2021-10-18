@@ -423,6 +423,12 @@ void initializeBrogueSaveLocation() {
     [manager changeCurrentDirectoryPath:documentsPath];
 }
 
+void rogueMain() {
+	previousGameSeed = 0;
+	initializeBrogueSaveLocation();
+	mainBrogueJunction();
+}
+
 #define ADD_FAKE_PADDING_FILES 0
 
 // Returns a malloc'ed fileEntry array, and puts the file count into *fileCount.
