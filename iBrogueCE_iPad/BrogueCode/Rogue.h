@@ -370,7 +370,7 @@ typedef struct fileEntry {
     char *path;
     // Seth: RogueDriver.mm wants to copy a string into this field
     // struct tm date;
-    char *date;
+    char date[8+1];
 } fileEntry;
 
 enum RNGs {

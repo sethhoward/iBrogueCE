@@ -561,13 +561,6 @@ boolean tryParseUint64(char *str, uint64_t *num) {
     }
 }
 
-boolean hasGraphics = true;
-boolean serverMode = false;
-enum graphicsModes graphicsMode = TILES_GRAPHICS;
-struct brogueConsole currentConsole;
-
-
-
 //fileEntry *listFiles(short *fileCount, char **namebuffer) {
 //    struct filelist *list = newFilelist();
 //

@@ -580,7 +580,7 @@ void startLevel(short oldLevelNumber, short stairDirection) {
                 // Remember visible cells upon exiting.
                 storeMemories(i, j);
             }
-            for (layer = (dungeonLayers)0; layer < NUMBER_TERRAIN_LAYERS; (dungeonLayers)(layer+1)) {
+            for (int layer = 0; layer < NUMBER_TERRAIN_LAYERS; layer++) {
                 levels[oldLevelNumber - 1].mapStorage[i][j].layers[layer] = pmap[i][j].layers[layer];
             }
             levels[oldLevelNumber - 1].mapStorage[i][j].volume = pmap[i][j].volume;

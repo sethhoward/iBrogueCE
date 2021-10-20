@@ -31,6 +31,8 @@
 //#import "GameCenterManager.h"
 #import <QuartzCore/QuartzCore.h>
 
+#include "platform.h"
+
 #define kRateScore 3000
 
 #define BROGUE_VERSION	4	// A special version number that's incremented only when
@@ -546,3 +548,25 @@ fileEntry *listFiles(short *fileCount, char **dynamicMemoryBuffer) {
 	*fileCount = count + ADD_FAKE_PADDING_FILES;
 	return fileList;
 }
+
+
+boolean modifierHeld(int modifier) {
+    return controlKeyIsDown() || shiftKeyIsDown();
+}
+
+boolean hasGraphics = false;
+boolean serverMode = false;
+enum graphicsModes graphicsMode = TEXT_GRAPHICS;
+struct brogueConsole currentConsole = {
+    rogueMain,
+    pauseForMilliseconds,
+    nextKeyOrMouseEvent,
+    plotChar,
+    NULL,
+    modifierHeld,
+    
+    // optional
+    NULL,
+    NULL,
+    NULL
+};

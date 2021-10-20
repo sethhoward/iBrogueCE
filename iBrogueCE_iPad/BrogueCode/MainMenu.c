@@ -439,12 +439,12 @@ boolean stringsExactlyMatch(const char *string1, const char *string2) {
 int fileEntryCompareDates(const void *a, const void *b) {
     fileEntry *f1 = (fileEntry *)a;
     fileEntry *f2 = (fileEntry *)b;
-    time_t t1, t2;
+    struct tm t1, t2;
     double diff;
 
-    t1 = mktime(&f1->date);
-    t2 = mktime(&f2->date);
-    diff = difftime(t2, t1);
+    strptime(f1->date, "%D", &t1);
+    strptime(f2->date, "%D", &t2);
+    diff = difftime(mktime(&t2), mktime(&t1));
 
     //char date_f1[11];
     //char date_f2[11];
@@ -461,13 +461,12 @@ int fileEntryCompareDates(const void *a, const void *b) {
 #define MAX_FILENAME_DISPLAY_LENGTH     53
 boolean dialogChooseFile(char *path, const char *suffix, const char *prompt) {
     short i, j, count, x, y, width, height, suffixLength, pathLength, maxPathLength, currentPageStart;
-    brogueButton buttons[FILES_ON_PAGE_MAX + 2];
     fileEntry *files;
     boolean retval = false, again;
     cellDisplayBuffer dbuf[COLS][ROWS], rbuf[COLS][ROWS];
     color *dialogColor = &interfaceBoxColor;
     char *membuf;
-    char fileDate [11];
+    char fileDate [8+1] = {};
 
     suffixLength = strlen(suffix);
     files = listFiles(&count, &membuf);
@@ -501,6 +500,7 @@ boolean dialogChooseFile(char *path, const char *suffix, const char *prompt) {
     qsort(files, count, sizeof(fileEntry), &fileEntryCompareDates);
 
     currentPageStart = 0;
+    brogueButton buttons[min(count - currentPageStart, FILES_ON_PAGE_MAX)];
 
     do { // Repeat to permit scrolling.
         again = false;
@@ -541,7 +541,7 @@ boolean dialogChooseFile(char *path, const char *suffix, const char *prompt) {
                 buttons[i].text[j] = ' ';
             }
             buttons[i].text[j] = '\0';
-            strftime(fileDate, sizeof(fileDate), DATE_FORMAT, &files[currentPageStart+i].date);
+            strcpy(fileDate, files[currentPageStart+i].date);
             strcpy(&(buttons[i].text[j]), fileDate);
             buttons[i].x = x;
             buttons[i].y = y + 1 + i;
