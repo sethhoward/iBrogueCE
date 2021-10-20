@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B5F40754271DE8C3005C2DD9 /* platformdependent.c in Sources */ = {isa = PBXBuildFile; fileRef = B5F40753271DE8C3005C2DD9 /* platformdependent.c */; };
+		B5AC967A2720D49300077517 /* platformdependent.c in Sources */ = {isa = PBXBuildFile; fileRef = B5F40753271DE8C3005C2DD9 /* platformdependent.c */; };
 		C5213CD21B7533AE00E97A27 /* Arial Unicode.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C5213CD11B75308E00E97A27 /* Arial Unicode.ttf */; };
 		C52686AB215C0B5D00033E3F /* PowerTables.c in Sources */ = {isa = PBXBuildFile; fileRef = C52686AA215C0B5D00033E3F /* PowerTables.c */; };
 		C532C8A61971AB8800695956 /* DirectionControlsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C532C8A41971AB8800695956 /* DirectionControlsViewController.m */; };
@@ -413,7 +413,7 @@
 				C57A966716D7EB5500C233F1 /* Combat.c in Sources */,
 				ECBE68AD1EC0E1C600E9F366 /* BrogueViewController.swift in Sources */,
 				C57A966816D7EB5500C233F1 /* Dijkstra.c in Sources */,
-				B5F40754271DE8C3005C2DD9 /* platformdependent.c in Sources */,
+				B5AC967A2720D49300077517 /* platformdependent.c in Sources */,
 				C57A966916D7EB5500C233F1 /* Globals.c in Sources */,
 				C57A966A16D7EB5500C233F1 /* Grid.c in Sources */,
 				ECBE68AB1EC0DB1800E9F366 /* SKViewPort.swift in Sources */,
