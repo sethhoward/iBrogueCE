@@ -219,31 +219,9 @@ boolean isEnvironmentGlyph(enum displayGlyph glyph) {
     }
 }
 
-//void plotChar(enum displayGlyph inputChar,
-//              short xLoc, short yLoc,
-//              short foreRed, short foreGreen, short foreBlue,
-//              short backRed, short backGreen, short backBlue) {
-//    currentConsole.plotChar(inputChar, xLoc, yLoc, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue);
-//}
-
 void pausingTimerStartsNow() {
 
 }
-
-//boolean shiftKeyIsDown() {
-//    return currentConsole.modifierHeld(0);
-//}
-//boolean controlKeyIsDown() {
-//    return currentConsole.modifierHeld(1);
-//}
-
-//void nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textInput, boolean colorsDance) {
-//    currentConsole.nextKeyOrMouseEvent(returnEvent, textInput, colorsDance);
-//}
-
-//boolean pauseForMilliseconds(short milliseconds) {
-//    return currentConsole.pauseForMilliseconds(milliseconds);
-//}
 
 void notifyEvent(short eventId, int data1, int data2, const char *str1, const char *str2) {
     if (currentConsole.notifyEvent) {
@@ -416,46 +394,6 @@ void dumpScores() {
     }
 }
 
-//short getHighScoresList(rogueHighScoresEntry returnList[HIGH_SCORES_COUNT]) {
-//    short i, mostRecentLineNumber;
-//
-//    mostRecentLineNumber = loadScoreBuffer();
-//
-//    for (i=0; i<HIGH_SCORES_COUNT; i++) {
-//        returnList[i].score =               scoreBuffer[i].score;
-//        strcpy(returnList[i].date,          scoreBuffer[i].dateText);
-//        strcpy(returnList[i].description,   scoreBuffer[i].description);
-//    }
-//
-//    return mostRecentLineNumber;
-//}
-
-//boolean saveHighScore(rogueHighScoresEntry theEntry) {
-//    short i, lowestScoreIndex = -1;
-//    long lowestScore = -1;
-//
-//    loadScoreBuffer();
-//
-//    for (i=0; i<HIGH_SCORES_COUNT; i++) {
-//        if (scoreBuffer[i].score < lowestScore || i == 0) {
-//            lowestScore = scoreBuffer[i].score;
-//            lowestScoreIndex = i;
-//        }
-//    }
-//
-//    if (lowestScore > theEntry.score) {
-//        return false;
-//    }
-//
-//    scoreBuffer[lowestScoreIndex].score =               theEntry.score;
-//    scoreBuffer[lowestScoreIndex].dateNumber =          (long) time(NULL);
-//    strcpy(scoreBuffer[lowestScoreIndex].description,   theEntry.description);
-//
-//    saveScoreBuffer();
-//
-//    return true;
-//}
-
 // start of file listing
 
 struct filelist {
@@ -479,44 +417,6 @@ struct filelist *newFilelist() {
 
     return list;
 }
-
-//fileEntry *addfile(struct filelist *list, const char *name) {
-//    int len = strlen(name);
-//    if (len + list->nextname >= list->maxname) {
-//        int newmax = (list->maxname + len) * 2;
-//        char *newnames = realloc(list->names, newmax);
-//        if (newnames != NULL) {
-//            list->names = newnames;
-//            list->maxname = newmax;
-//        } else {
-//            // fail silently
-//            return NULL;
-//        }
-//    }
-//
-//    if (list->nfiles >= list->maxfiles) {
-//        int newmax = list->maxfiles * 2;
-//        fileEntry *newfiles = realloc(list->files, sizeof(fileEntry) * newmax);
-//        if (newfiles != NULL) {
-//            list->files = newfiles;
-//            list->maxfiles = newmax;
-//        } else {
-//            // fail silently
-//            return NULL;
-//        }
-//    }
-//
-//    // add the new file and copy the name into the buffer
-//    list->files[list->nfiles].path = ((char *) NULL) + list->nextname; // don't look at them until they are transferred out
-//    list->files[list->nfiles].date = (struct tm) {0}; // associate a dummy date (1899-12-31) to avoid random data, it will be correctly populated when using listFiles()
-//
-//    strncpy(list->names + list->nextname, name, len + 1);
-//
-//    list->nextname += len + 1;
-//    list->nfiles += 1;
-//
-//    return list->files + (list->nfiles - 1);
-//}
 
 void freeFilelist(struct filelist *list) {
     //if (list->names != NULL) free(list->names);
@@ -561,49 +461,6 @@ boolean tryParseUint64(char *str, uint64_t *num) {
     }
 }
 
-//fileEntry *listFiles(short *fileCount, char **namebuffer) {
-//    struct filelist *list = newFilelist();
-//
-//    // windows: FindFirstFile/FindNextFile
-//    DIR *dp= opendir ("./");
-//
-//    if (dp != NULL) {
-//        struct dirent *ep;
-//        struct stat statbuf;
-//        struct tm *timeinfo;
-//
-//        while ((ep = readdir(dp))) {
-//            // get statistics about the file (0 on success)
-//            if (!stat(ep->d_name, &statbuf)) {
-//                fileEntry *file = addfile(list, ep->d_name);
-//                if (file != NULL) {
-//                    // add the modification date to the file entry
-//                    timeinfo = localtime(&statbuf.st_mtime);
-//                    file->date = *timeinfo;
-//                }
-//            }
-//        }
-//
-//        closedir (dp);
-//    }
-//    else {
-//        *fileCount = 0;
-//        return NULL;
-//    }
-//
-//    fileEntry *files = commitFilelist(list, namebuffer);
-//
-//    if (files != NULL) {
-//        *fileCount = (short) list->nfiles;
-//    } else {
-//        *fileCount = 0;
-//    }
-//
-//    freeFilelist(list);
-//
-//    return files;
-//}
-
 // end of file listing
 
 void initializeLaunchArguments(enum NGCommands *command, char *path, uint64_t *seed) {
@@ -614,4 +471,3 @@ boolean isApplicationActive(void) {
     // FIXME: finish
     return true;
 }
-

@@ -20,7 +20,6 @@
 
 
 import SpriteKit
-//import GameplayKit
 
 extension CGSize {
     public init(rows: Int, cols: Int) {
@@ -162,20 +161,6 @@ fileprivate extension RogueScene {
                      "!"..."?",
                      " ", "[", "/", "]", "^", "{", "|", "}", "~":
                     self = .letter
-//                case "\(UnicodeScalar(UInt32(FOLIAGE_CHAR))!)":
-//                    self = .foliage
-//                case "\(UnicodeScalar(UInt32(SCROLL_CHAR))!)":
-//                    self = .scroll
-//                case "\(UnicodeScalar(UInt32(CHARM_CHAR))!)":
-//                    self = .charm
-//                case "\(UnicodeScalar(UInt32(RING_CHAR))!)":
-//                    self = .ring
-//                case "\(UnicodeScalar(UInt32(AMULET_CHAR))!)":
-//                    self = .amulet
-//                case "\(UnicodeScalar(UInt32(WEAPON_CHAR))!)":
-//                    self = .weapon
-//                case "\(UnicodeScalar(UInt32(OMEGA_CHAR)))":
-//                    self = .omega
                 default:
                     self = .glyph
                 }

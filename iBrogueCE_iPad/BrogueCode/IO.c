@@ -26,7 +26,6 @@
 
 #include "Rogue.h"
 #include "IncludeGlobals.h"
-#include "platform.h"
 
 // Populates path[][] with a list of coordinates starting at origin and traversing down the map. Returns the number of steps in the path.
 short getPlayerPathOnMap(short path[1000][2], short **map, short originX, short originY) {
@@ -904,7 +903,7 @@ void commitDraws() {
                 continue;
             }
 
-            plotChar(glyphToUnicode(curr->character), i, j,
+            plotChar(curr->character, i, j,
                      curr->foreColorComponents[0],
                      curr->foreColorComponents[1],
                      curr->foreColorComponents[2],
@@ -923,7 +922,7 @@ void refreshScreen() {
     for (int i = 0; i < COLS; i++) {
         for (int j = 0; j < ROWS; j++) {
             cellDisplayBuffer *curr = &displayBuffer[i][j];
-            plotChar(glyphToUnicode(curr->character), i, j,
+            plotChar(curr->character, i, j,
                      curr->foreColorComponents[0],
                      curr->foreColorComponents[1],
                      curr->foreColorComponents[2],

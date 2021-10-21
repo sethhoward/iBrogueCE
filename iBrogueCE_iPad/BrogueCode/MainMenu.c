@@ -461,6 +461,7 @@ int fileEntryCompareDates(const void *a, const void *b) {
 #define MAX_FILENAME_DISPLAY_LENGTH     53
 boolean dialogChooseFile(char *path, const char *suffix, const char *prompt) {
     short i, j, count, x, y, width, height, suffixLength, pathLength, maxPathLength, currentPageStart;
+    brogueButton buttons[FILES_ON_PAGE_MAX + 2];
     fileEntry *files;
     boolean retval = false, again;
     cellDisplayBuffer dbuf[COLS][ROWS], rbuf[COLS][ROWS];
@@ -500,7 +501,6 @@ boolean dialogChooseFile(char *path, const char *suffix, const char *prompt) {
     qsort(files, count, sizeof(fileEntry), &fileEntryCompareDates);
 
     currentPageStart = 0;
-    brogueButton buttons[min(count - currentPageStart, FILES_ON_PAGE_MAX)];
 
     do { // Repeat to permit scrolling.
         again = false;

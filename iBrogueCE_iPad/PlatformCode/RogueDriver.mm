@@ -26,12 +26,14 @@
 #include <unistd.h>
 #include "CoreFoundation/CoreFoundation.h"
 #import "RogueDriver.h"
-#include "IncludeGlobals.h"
 #include "Rogue.h"
 //#import "GameCenterManager.h"
 #import <QuartzCore/QuartzCore.h>
 
-#include "platform.h"
+extern "C" {
+    #include "IncludeGlobals.h"
+    #include "platform.h"
+}
 
 #define kRateScore 3000
 
@@ -92,7 +94,7 @@ void plotChar(enum displayGlyph inputChar,
     CGFloat foreComponents[] = {(CGFloat)(foreRed * .01), (CGFloat)(foreGreen * .01), (CGFloat)(foreBlue * .01), 1.};
     CGColorRef foreColor = CGColorCreate(_colorSpace, foreComponents);
 
-    [skviewPort setCellWithX:xLoc y:yLoc code:inputChar bgColor:backColor fgColor:foreColor];
+    [skviewPort setCellWithX:xLoc y:yLoc code:glyphToUnicode(inputChar) bgColor:backColor fgColor:foreColor];
     
     CGColorRelease(backColor);
     CGColorRelease(foreColor);

@@ -266,7 +266,7 @@ void applyInstantTileEffectsToCreature(creature *monst) {
         && monst->machineHome == pmap[*x][*y].machineNumber
         && (monst->bookkeepingFlags & MB_MARKED_FOR_SACRIFICE)) {
         // Subject to same caveats as T_PROMOTES_ON_STEP above.
-        for (layer = DUNGEON; layer < NUMBER_TERRAIN_LAYERS; dungeonLayers(layer + 1)) {
+        for (layer = DUNGEON; layer < NUMBER_TERRAIN_LAYERS; layer =  dungeonLayers(layer + 1)) {
             if (tileCatalog[pmap[*x][*y].layers[layer]].mechFlags & TM_PROMOTES_ON_SACRIFICE_ENTRY) {
                 promoteTile(*x, *y, layer, false);
             }
