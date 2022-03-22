@@ -95,7 +95,7 @@ strings, but they are equal (rogue.patchLevel is set to 0).
 #define DELETE_SAVE_FILE_AFTER_LOADING  true
 
 // set to false to disable references to keystrokes (e.g. for a tablet port)
-#define KEYBOARD_LABELS true
+#define KEYBOARD_LABELS false   // keyboard detection code would be nice, but this is off for iPad
 
 //#define BROGUE_ASSERTS        // introduces several assert()s -- useful to find certain array overruns and other bugs
 //#define AUDIT_RNG             // VERY slow, but sometimes necessary to debug out-of-sync recording errors
