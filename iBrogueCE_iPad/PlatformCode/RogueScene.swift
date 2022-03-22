@@ -108,6 +108,16 @@ fileprivate extension RogueScene {
         return textureMap[glyph] ?? addTexture(glyph: glyph)
     }
     
+    // modify certain glyphs to overcome "Emoji effects"
+    func modifyGlyphEncoding(glyph: String) -> String {
+        let aries = "\u{2648}"
+        if glyph == aries {
+            let bytes: [Unicode.UTF8.CodeUnit] = [0xe2,0x99,0x88,0xef,0xb8,0x8e] // extended UTF-8 coding for ARIES symbol
+            return String(bytes: bytes, encoding: String.Encoding.utf8) ?? glyph
+        }
+        return glyph
+    }
+    
     func createTextureFromGlyph(glyph: String, size: CGSize) -> SKTexture {
         // Apple Symbols provides U+26AA, for rings, which Arial does not.
         
@@ -208,7 +218,8 @@ fileprivate extension RogueScene {
     }
     
     func addTexture(glyph: String) -> SKTexture {
-        textureMap[glyph] = createTextureFromGlyph(glyph: glyph, size: cellSize)
+        // added a call to change special characters to UTF-8 replacements
+        textureMap[glyph] = createTextureFromGlyph(glyph: modifyGlyphEncoding(glyph: glyph), size: cellSize)
         return textureMap[glyph]!
     }
 }
