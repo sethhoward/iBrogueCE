@@ -329,7 +329,7 @@
 				ORGANIZATIONNAME = "Seth howard";
 				TargetAttributes = {
 					C57A962416D7EAD500C233F1 = {
-						DevelopmentTeam = 3NJUD9MLAB;
+						DevelopmentTeam = J33P3R33M4;
 						LastSwiftMigration = 1000;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -552,7 +552,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 0;
-				DEVELOPMENT_TEAM = 3NJUD9MLAB;
+				DEVELOPMENT_TEAM = J33P3R33M4;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "iBrogueCE_iPad/iBrogueCE_iPad-Prefix.pch";
@@ -561,7 +561,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MARKETING_VERSION = 1.3.5;
-				PRODUCT_BUNDLE_IDENTIFIER = tk.apollov.BrogueCE;
+				PRODUCT_BUNDLE_IDENTIFIER = md.taylor.broguece;
 				PRODUCT_NAME = BrogueCE;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
