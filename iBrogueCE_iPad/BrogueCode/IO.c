@@ -2805,7 +2805,7 @@ boolean getInputTextString(char *inputText,
     maxLength = min(maxLength, COLS - x);
 
 
-//    strcpy(inputText, defaultEntry);
+    strcpy(inputText, defaultEntry);            // BT: this was commented out, but it invalidates inputText
     charNum = strLenWithoutEscapes(inputText);
     for (i = charNum; i < maxLength; i++) {
         inputText[i] = ' ';
@@ -2821,7 +2821,7 @@ boolean getInputTextString(char *inputText,
         printString(suffix, charNum + x, y, &gray, &black, 0);
         plotCharWithColor((suffix[0] ? suffix[0] : ' '), x + charNum, y, &black, &white);
         
-        // SETH: custom function
+        // SETH: custom function - to display a keyboard on the iPad screen
         requestKeyboardInput(defaultEntry);
         
         keystroke = nextKeyPress(true);

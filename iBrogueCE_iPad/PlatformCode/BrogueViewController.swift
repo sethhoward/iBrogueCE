@@ -22,6 +22,7 @@
 import SpriteKit
 
 fileprivate let kESC_Key: UInt8 = 27
+fileprivate let kDelKey: UInt8 = 177
 fileprivate let kEnterKey = "\n"
 
 private func synchronized<T>(_ lock: Any, _ body: () throws -> T) rethrows -> T {
@@ -127,6 +128,10 @@ final class BrogueViewController: UIViewController {
     @objc var lastBrogueGameEvent: BrogueGameEvent = .showTitle {
         didSet {
             DispatchQueue.main.async {
+                //default visibility
+                self.escButton.isHidden = true
+                self.seedButton.isHidden = true
+                
                 switch self.lastBrogueGameEvent {
                 case .keyBoardInputRequired:
                     self.inputTextField.becomeFirstResponder()
@@ -479,51 +484,16 @@ extension BrogueViewController: UITextFieldDelegate {
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let isBackSpace = strcmp(string.cString(using: .utf8), "\\b")
-        
-        if (isBackSpace == -92) {
-            addKeyEvent(event: 127)
+        if string.isEmpty {
+            addKeyEvent(event: kDelKey)
         } else {
             addKeyEvent(event: string.ascii)
         }
-        
         return true
     }
 }
 
-private let keys: [UIKeyCommand]? = {
-    let lower = (UnicodeScalar("a").value...UnicodeScalar("z").value).map{ String(UnicodeScalar($0)!) }
-    let upper = (UnicodeScalar("A").value...UnicodeScalar("Z").value).map{ String(UnicodeScalar($0)!) }
-    let alpha = lower + upper + [">", "<", " ", "\\", "]", "?", "~", "&", "\r", "\t", "."]
-    var keys = (alpha.map {
-        UIKeyCommand(input: $0, modifierFlags: [], action: #selector(BrogueViewController.executeKeyCommand))
-    })
-    keys.append(UIKeyCommand(input: UIKeyCommand.inputUpArrow, modifierFlags: [], action: #selector(BrogueViewController.executeKeyCommand)))
-    keys.append(UIKeyCommand(input: UIKeyCommand.inputDownArrow, modifierFlags: [], action: #selector(BrogueViewController.executeKeyCommand)))
-    keys.append(UIKeyCommand(input: UIKeyCommand.inputLeftArrow, modifierFlags: [], action: #selector(BrogueViewController.executeKeyCommand)))
-    keys.append(UIKeyCommand(input: UIKeyCommand.inputRightArrow, modifierFlags: [], action: #selector(BrogueViewController.executeKeyCommand)))
-    keys.append(UIKeyCommand(input: UIKeyCommand.inputEscape, modifierFlags: [], action: #selector(BrogueViewController.executeKeyCommand)))
-    /* + (alpha.map {
-     UIKeyCommand(input: $0, modifierFlags: [.shift], action: #selector(BrogueViewController.executeKeyCommand))
-     })
-     + ([">", "<", " ", "\\", "]", "?", "~", "&", "\r", "\t", "."].map {
-     UIKeyCommand(input: $0, modifierFlags: [], action: #selector(BrogueViewController.executeKeyCommand)) */
-    //})
-    
-    return keys
-}()
 
-extension BrogueViewController {
-    override var keyCommands: [UIKeyCommand]? {
-        return keys
-    }
-    
-    @objc fileprivate func executeKeyCommand(keyCommand: UIKeyCommand) {
-        if let key = keyCommand.input?.ascii {
-            addKeyEvent(event: key)
-        }
-    }
-}
 
 // MARK: - SKMagView
 
