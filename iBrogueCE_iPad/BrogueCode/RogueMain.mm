@@ -118,16 +118,16 @@ void benchmark() {
 
 void welcome() {
     char buf[DCOLS*3], buf2[DCOLS*3];
-    message("Hello and welcome, adventurer, to the Dungeons of Doom!", REQUIRE_ACKNOWLEDGMENT);
+    message("Hello and welcome, adventurer, to the Dungeons of Doom!", NO_FLAG);
     strcpy(buf, "Retrieve the ");
     encodeMessageColor(buf, strlen(buf), &itemMessageColor);
     strcat(buf, "Amulet of Yendor");
     encodeMessageColor(buf, strlen(buf), &white);
     sprintf(buf2, " from the %ith floor and escape with it!", AMULET_LEVEL);
     strcat(buf, buf2);
-    message(buf, REQUIRE_ACKNOWLEDGMENT);
+    message(buf, NO_FLAG);
     if (KEYBOARD_LABELS) {
-        messageWithColor("Press <?> for help at any time.", &backgroundMessageColor, REQUIRE_ACKNOWLEDGMENT);
+        messageWithColor("Press <?> for help at any time.", &backgroundMessageColor, NO_FLAG);
     }
     flavorMessage("The doors to the dungeon slam shut behind you.");
 }

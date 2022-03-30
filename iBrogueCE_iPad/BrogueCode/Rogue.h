@@ -2654,6 +2654,7 @@ typedef struct buttonState {
 } buttonState;
 
 enum messageFlags {
+    NO_FLAG                       = 0,
     REQUIRE_ACKNOWLEDGMENT        = Fl(0),
     REFRESH_SIDEBAR               = Fl(1),
     FOLDABLE                      = Fl(2),

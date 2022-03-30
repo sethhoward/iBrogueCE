@@ -2769,15 +2769,16 @@ void executeKeystroke(signed long keystroke, boolean controlKey, boolean shiftKe
     rogue.cautiousMode = false;
 }
 
-boolean getInputTextString(char *inputText,
-                           const char *prompt,
-                           short maxLength,
-                           const char *defaultEntry,
-                           const char *promptSuffix,
+boolean getInputTextString(char *inputText,             // character buffer to return the entered text
+                           const char *prompt,          // prompt to display before text entry
+                           short maxLength,             // maximum length allowed for text entered
+                           const char *defaultEntry,    // fill out the entry field with a default value, possible
+                           const char *promptSuffix,    // back half (enclosure) of the prompt text
                            short textEntryType,
                            boolean useDialogBox) {
     short charNum, i, x, y;
     char keystroke, suffix[100];
+    char safeEntryBuffer[COLS];     // BT: added to buffer the defaultEntry into local storage, before copying into inputText
     const short textEntryBounds[TEXT_INPUT_TYPES][2] = {{' ', '~'}, {' ', '~'}, {'0', '9'}};
     cellDisplayBuffer dbuf[COLS][ROWS], rbuf[COLS][ROWS];
 
@@ -2805,7 +2806,8 @@ boolean getInputTextString(char *inputText,
     maxLength = min(maxLength, COLS - x);
 
 
-    strcpy(inputText, defaultEntry);            // BT: this was commented out, but it invalidates inputText
+    strcpy(safeEntryBuffer, defaultEntry);      // BT: indirect copy to avoid overlapping buffers crash
+    strcpy(inputText, safeEntryBuffer);         // BT: this was commented out, but it invalidates inputText--possibly due to overlapping buffers crash
     charNum = strLenWithoutEscapes(inputText);
     for (i = charNum; i < maxLength; i++) {
         inputText[i] = ' ';
