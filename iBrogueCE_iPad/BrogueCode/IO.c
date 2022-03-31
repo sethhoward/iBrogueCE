@@ -3031,43 +3031,6 @@ boolean confirm(char *prompt, boolean alsoDuringPlayback) {
     return retVal;
 }
 
-// attempt to create an in-line button for displaying inventory at the end game
-// actually ... just use the confirm dialog with DYWPI? prompt
-boolean confirmInventory (void) {
-    short retVal;
-    brogueButton button;
-    cellDisplayBuffer rbuf[COLS][ROWS];
-    char whiteColorEscape[20] = "";
-    char yellowColorEscape[20] = "";
-
-    // Seth:
-    setBrogueGameEvent(CBrogueGameEventWaitingForConfirmation);
-
-    encodeMessageColor(whiteColorEscape, 0, &white);
-    encodeMessageColor(yellowColorEscape, 0, KEYBOARD_LABELS ? &yellow : &white);
-    
-    initializeButton(&button);
-    sprintf(button.text," Click for Inventory ");
-    button.hotkey[0] = 'i';
-    button.hotkey[1] = 'I';
-    button.flags |= (B_WIDE_CLICK_AREA | B_KEYPRESS_HIGHLIGHT);
-    
-    retVal = printTextBox("Do you want your possessions identified?", COLS/3, ROWS/3, COLS/3, &white, &interfaceBoxColor, rbuf, &button, 1);
-    
-    // Seth:
-    setBrogueGameEvent(CBrogueGameEventConfirmationComplete);
-
-    if (retVal == -1 || retVal == 1) { // If they canceled or pressed no.
-        return false;
-    } else {
-        return true;
-    }
-
-    confirmMessages();
-    return retVal;
-
-}
-
 void clearMonsterFlashes() {
 
 }
