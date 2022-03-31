@@ -29,7 +29,7 @@ let U_DIAMOND = "\u{25c7}"
 let U_FLIPPED_V = "\u{22CF}"
 let U_ARIES = "\u{2648}"        // foliage glyph
 let U_ESZETT = "\u{00df}"
-let U_ANKH = "\u{2640}"
+let U_ANKH = "\u{2640}"         // amulet
 let U_MUSIC_NOTE = "\u{266A}"   // scroll glyph
 let U_CIRCLE = "\u{25CB}"       // ring glyph
 let U_LIGHTNING_BOLT = "\u{03DF}"   // charm glyph
@@ -203,6 +203,8 @@ fileprivate extension RogueScene {
                     self = .amulet
                 case U_LIGHTNING_BOLT :
                     self = .charm
+                case U_ANKH :
+                    self = .amulet
                 case U_CIRCLE :
                     self = .ring
                 default:

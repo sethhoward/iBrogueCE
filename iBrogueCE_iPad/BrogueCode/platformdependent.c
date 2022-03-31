@@ -127,8 +127,8 @@ unsigned int glyphToUnicode(enum displayGlyph glyph) {
         case G_WEAPON: return U_UP_ARROW;
         case G_GEM: return U_FILLED_CIRCLE;
         case G_TOTEM: return U_NEUTER;
-        case G_GOOD_MAGIC: return U_FILLED_CIRCLE_BARS;
-        case G_BAD_MAGIC: return U_CIRCLE_BARS;
+        case G_GOOD_MAGIC: return U_CIRCLE_BARS;
+        case G_BAD_MAGIC: return U_FILLED_CIRCLE_BARS;  // BT: reversed these to make RED/BAD stand out more
         case G_DOORWAY: return U_OMEGA;
         case G_CHARM: return U_LIGHTNING_BOLT;
         case G_WALL_TOP: return '#';

@@ -119,7 +119,6 @@ final class BrogueViewController: UIViewController {
         }
     }
     @IBOutlet fileprivate weak var inputTextField: UITextField!
-    @IBOutlet fileprivate weak var showInventoryButton: UIButton!
   //  @IBOutlet fileprivate weak var leaderBoardButton: UIButton!
     @IBOutlet fileprivate weak var seedButton: UIButton!
    
@@ -137,7 +136,6 @@ final class BrogueViewController: UIViewController {
                     self.inputTextField.becomeFirstResponder()
                 case .showTitle, .openGameFinished:
                     self.inputTextField.resignFirstResponder()
-                    self.showInventoryButton.isHidden = true
                   //  self.leaderBoardButton.isHidden = false
                     self.seedButton.isHidden = false
                     self.escButton.isHidden = true
@@ -146,9 +144,9 @@ final class BrogueViewController: UIViewController {
                     self.seedButton.isHidden = true
                     self.seedKeyDown = false
                 case .messagePlayerHasDied:
-                    self.showInventoryButton.isHidden = false
+                    break
                 case .playerHasDiedMessageAcknowledged:
-                    self.showInventoryButton.isHidden = true
+                    break
                 default: ()
                 }
                 
@@ -223,10 +221,6 @@ extension BrogueViewController {
     @IBAction func escButtonPressed(_ sender: Any) {
         addKeyEvent(event: kESC_Key)
         inputTextField.resignFirstResponder()
-    }
-    
-    @IBAction func showInventoryButtonPressed(_ sender: Any) {
-        addKeyEvent(event: "i".ascii)
     }
     
     @IBAction func seedButtonPressed(_ sender: Any) {
