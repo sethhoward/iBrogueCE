@@ -2670,6 +2670,7 @@ typedef struct archivedMessage {
 extern boolean serverMode;
 extern boolean hasGraphics;
 extern enum graphicsModes graphicsMode;
+extern boolean keyboardPresent;
 
 #if defined __cplusplus
 extern "C" {

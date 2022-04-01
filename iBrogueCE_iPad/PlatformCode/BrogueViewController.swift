@@ -23,9 +23,9 @@ import SpriteKit
 
 
 
-fileprivate let kESC_Key: UInt8 = 27
+fileprivate let kESCKey: UInt8 = 27
 fileprivate let kDelKey: UInt8 = 177
-fileprivate let kEnterKey = "\n"
+fileprivate let kEnterKey: UInt8 = "\n".ascii
 
 fileprivate var keyboardDetectedKeyevent: Bool = false; //we'll use this to keep from sending multiple special key events
 fileprivate let kbDetected: UInt8 = 254                 // totally arbitrary, but not a key likely to be entered from a keyboard
@@ -138,7 +138,9 @@ final class BrogueViewController: UIViewController {
                 
                 switch self.lastBrogueGameEvent {
                 case .keyBoardInputRequired:
-                    self.inputTextField.becomeFirstResponder()
+                    if ( !keyboardDetectedKeyevent) {
+                        self.inputTextField.becomeFirstResponder()
+                    }
                 case .showTitle, .openGameFinished:
                     self.inputTextField.resignFirstResponder()
                   //  self.leaderBoardButton.isHidden = false
@@ -149,6 +151,7 @@ final class BrogueViewController: UIViewController {
                     self.seedButton.isHidden = true
                     self.seedKeyDown = false
                 case .messagePlayerHasDied:
+                    self.seedButton.isHidden = true
                     break
                 case .playerHasDiedMessageAcknowledged:
                     break
@@ -224,7 +227,7 @@ final class BrogueViewController: UIViewController {
  
 extension BrogueViewController {
     @IBAction func escButtonPressed(_ sender: Any) {
-        addKeyEvent(event: kESC_Key)
+        addKeyEvent(event: kESCKey)
         inputTextField.resignFirstResponder()
     }
     
@@ -243,7 +246,7 @@ extension BrogueViewController {
 
 extension BrogueViewController {
     override func motionBegan(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
-        addKeyEvent(event: kESC_Key)
+        addKeyEvent(event: kESCKey)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -491,17 +494,22 @@ extension BrogueViewController: UITextFieldDelegate {
         return true
     }
     
+    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        // TODO: set a timer or otherwise start a key repitition simulation
+    }
+    
+    
     override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         
-        // okay ... this may be the ultimate kludge. To avoid a global KEYBOARD_PRESENT variable, which would be set here
-        // at the first keypress, and used in the C part of the program to display the menus with letter codes instead of cleanly
-        // I'm adding a "special" keyEvent that the main Bogue loop will use to set a KEYBOARD_LABEL variable to change the display menus
-        // currently KEYBOARD_LABEL is a compile time constant
-        
+        // when a key is pressed for the first time, a special key press is used to signal Brogue that a keyboard is present.
+        // In the Brogue main game loop, this keypress will set "keyboardDetected" to true, which will change the format of
+        // displays. We only do this the first time a key is pressed.
+        // TODO: right now, there's an issue with the use of "shift" modifier.
         if (!keyboardDetectedKeyevent) {
             keyboardDetectedKeyevent = true
             addKeyEvent(event: kbDetected)
         }
+        
         for press in presses {
             guard let key = press.key else { continue }
             switch key.keyCode {
@@ -513,6 +521,14 @@ extension BrogueViewController: UITextFieldDelegate {
                 addKeyEvent(event: kLEFT_key.ascii)
             case .keyboardRightArrow :
                 addKeyEvent(event: kRIGHT_key.ascii)
+            case .keyboardEscape :
+                addKeyEvent(event: kESCKey)
+            case .keyboardReturn :
+                addKeyEvent(event: kEnterKey)
+            case .keyboardDeleteOrBackspace :
+                addKeyEvent(event: kDelKey)
+            case .keyboardDeleteForward :
+                addKeyEvent(event: kDelKey)
             default :
                 if !key.charactersIgnoringModifiers.isEmpty {
                     addKeyEvent(event: key.charactersIgnoringModifiers.ascii)
