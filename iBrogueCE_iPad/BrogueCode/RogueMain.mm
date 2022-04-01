@@ -25,7 +25,6 @@
 #include "IncludeGlobals.h"
 #include <time.h>
 
-
 void executeEvent(rogueEvent *theEvent) {
     rogue.playbackBetweenTurns = false;
     if (theEvent->eventType == KEYSTROKE) {
@@ -141,7 +140,7 @@ void initializeRogue(uint64_t seed) {
     boolean playingback, playbackFF, playbackPaused, wizard, displayAggroRangeMode;
     boolean trueColorMode;
     short oldRNG;
-
+    
     playingback = rogue.playbackMode; // the only animals that need to go on the ark
     playbackPaused = rogue.playbackPaused;
     playbackFF = rogue.playbackFastForward;

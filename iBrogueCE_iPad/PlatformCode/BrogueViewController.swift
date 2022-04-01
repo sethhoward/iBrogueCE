@@ -21,9 +21,14 @@
 //import UIKit
 import SpriteKit
 
+
+
 fileprivate let kESC_Key: UInt8 = 27
 fileprivate let kDelKey: UInt8 = 177
 fileprivate let kEnterKey = "\n"
+
+fileprivate var keyboardDetectedKeyevent: Bool = false; //we'll use this to keep from sending multiple special key events
+fileprivate let kbDetected: UInt8 = 254                 // totally arbitrary, but not a key likely to be entered from a keyboard
 
 private func synchronized<T>(_ lock: Any, _ body: () throws -> T) rethrows -> T {
     objc_sync_enter(lock)
@@ -484,6 +489,36 @@ extension BrogueViewController: UITextFieldDelegate {
             addKeyEvent(event: string.ascii)
         }
         return true
+    }
+    
+    override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        
+        // okay ... this may be the ultimate kludge. To avoid a global KEYBOARD_PRESENT variable, which would be set here
+        // at the first keypress, and used in the C part of the program to display the menus with letter codes instead of cleanly
+        // I'm adding a "special" keyEvent that the main Bogue loop will use to set a KEYBOARD_LABEL variable to change the display menus
+        // currently KEYBOARD_LABEL is a compile time constant
+        
+        if (!keyboardDetectedKeyevent) {
+            keyboardDetectedKeyevent = true
+            addKeyEvent(event: kbDetected)
+        }
+        for press in presses {
+            guard let key = press.key else { continue }
+            switch key.keyCode {
+            case .keyboardUpArrow :
+                addKeyEvent(event: kUP_Key.ascii)
+            case .keyboardDownArrow :
+                addKeyEvent(event: kDOWN_key.ascii)
+            case .keyboardLeftArrow :
+                addKeyEvent(event: kLEFT_key.ascii)
+            case .keyboardRightArrow :
+                addKeyEvent(event: kRIGHT_key.ascii)
+            default :
+                if !key.charactersIgnoringModifiers.isEmpty {
+                    addKeyEvent(event: key.charactersIgnoringModifiers.ascii)
+                }
+            }
+        }
     }
 }
 

@@ -558,6 +558,7 @@ boolean modifierHeld(int modifier) {
 
 boolean hasGraphics = false;
 boolean serverMode = false;
+boolean keyboardPresent = false;            // no keyboard until key pressed
 enum graphicsModes graphicsMode = TEXT_GRAPHICS;
 struct brogueConsole currentConsole = {
     rogueMain,
