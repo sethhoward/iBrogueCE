@@ -75,7 +75,7 @@ extension CGSize {
         let char: NSString = "M" // Good letter to do the base calculations from
         let calcBounds: CGRect = char.boundingRect(with: CGSize(width: 0, height: 0),
                                                    options: [.usesDeviceMetrics, .usesFontLeading],
-                                                   attributes: convertToOptionalNSAttributedStringKeyDictionary([convertFromNSAttributedStringKey(NSAttributedString.Key.font): UIFont(name: "ArialUnicodeMS", size: 120)!]), context: nil)
+                                                   attributes: convertToOptionalNSAttributedStringKeyDictionary([convertFromNSAttributedStringKey(NSAttributedString.Key.font): UIFont(name: "Monaco", size: 120)!]), context: nil)
         return min(self.cellSize.width / calcBounds.width, self.cellSize.height / calcBounds.height)
     }()
     
@@ -142,8 +142,7 @@ fileprivate extension RogueScene {
     }
     
     func createTextureFromGlyph(glyph: String, size: CGSize) -> SKTexture {
-        // Apple Symbols provides U+26AA, for rings, which Arial does not.
-        
+                
         enum GlyphType {
             case letter
             case scroll

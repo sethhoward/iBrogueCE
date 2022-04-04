@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		B5AC967A2720D49300077517 /* platformdependent.c in Sources */ = {isa = PBXBuildFile; fileRef = B5F40753271DE8C3005C2DD9 /* platformdependent.c */; };
-		C5213CD21B7533AE00E97A27 /* Arial Unicode.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C5213CD11B75308E00E97A27 /* Arial Unicode.ttf */; };
 		C52686AB215C0B5D00033E3F /* PowerTables.c in Sources */ = {isa = PBXBuildFile; fileRef = C52686AA215C0B5D00033E3F /* PowerTables.c */; };
 		C532C8A61971AB8800695956 /* DirectionControlsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C532C8A41971AB8800695956 /* DirectionControlsViewController.m */; };
 		C57A962916D7EAD500C233F1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C57A962816D7EAD500C233F1 /* UIKit.framework */; };
@@ -70,7 +69,6 @@
 /* Begin PBXFileReference section */
 		B5F40753271DE8C3005C2DD9 /* platformdependent.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = platformdependent.c; sourceTree = "<group>"; };
 		B5F40755271DE8EB005C2DD9 /* platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform.h; sourceTree = "<group>"; };
-		C5213CD11B75308E00E97A27 /* Arial Unicode.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Arial Unicode.ttf"; sourceTree = "<group>"; };
 		C5213CD31B75445F00E97A27 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		C52686A6215C0A9800033E3F /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		C52686A8215C0AA800033E3F /* libc++.1.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.1.tbd"; path = "usr/lib/libc++.1.tbd"; sourceTree = SDKROOT; };
@@ -207,7 +205,6 @@
 		C57A962F16D7EAD500C233F1 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				C5213CD11B75308E00E97A27 /* Arial Unicode.ttf */,
 				C59B21C616EA48E0007018DE /* MONACO.TTF */,
 				C57A963016D7EAD500C233F1 /* iBrogueCE_iPad-Info.plist */,
 				C57A963116D7EAD500C233F1 /* InfoPlist.strings */,
@@ -387,7 +384,6 @@
 				C5958C77174AFFBB00519AD9 /* brogue_showinventory_button@2x.png in Resources */,
 				C5FFC5DF17B9A9DB007A05F3 /* Default-Landscape~ipad.png in Resources */,
 				C5958C78174AFFBB00519AD9 /* brogue_sproutedseed.png in Resources */,
-				C5213CD21B7533AE00E97A27 /* Arial Unicode.ttf in Resources */,
 				C5958C79174AFFBB00519AD9 /* brogue_sproutedseed@2x.png in Resources */,
 				C5958C7A174AFFBB00519AD9 /* gamecenterlogo_brogue.png in Resources */,
 				C5958C7B174AFFBB00519AD9 /* gamecenterlogo_brogue@2x.png in Resources */,
