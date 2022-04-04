@@ -113,6 +113,8 @@ final class BrogueViewController: UIViewController {
     fileprivate var keyEvents = [UInt8]()
     fileprivate var magnifierTimer: Timer?
     fileprivate var inputRequestString: String?
+    fileprivate var shiftModifierPressed: Bool = false
+    fileprivate var controlModifierPressed: Bool = false
     
     @IBOutlet var skViewPort: SKViewPort!
     @IBOutlet fileprivate weak var magView: SKMagView!
@@ -368,6 +370,14 @@ extension BrogueViewController {
     @objc func keyboardDetected() -> Bool {
         return self.keyboardDetectedKeyEvent
     }
+    
+    @objc func shiftKeyDown() -> Bool {
+        return self.shiftModifierPressed
+    }
+    
+    @objc func controlKeyDown() -> Bool {
+        return self.controlModifierPressed
+    }
 }
 
 extension BrogueViewController {
@@ -467,6 +477,7 @@ extension BrogueViewController {
     }
 }
 
+// MARK: - Handle Key input from screen or keyboard
 extension BrogueViewController: UITextFieldDelegate {
     @objc func requestTextInput(for string: String) {
         inputRequestString = string
@@ -502,17 +513,27 @@ extension BrogueViewController: UITextFieldDelegate {
     
     override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         // TODO: set a timer or otherwise start a key repitition simulation
-        // TODO: may need to catch shift or control modifier here, and set a flag they're pressed
-    }
+        
+            guard let key = presses.first?.key else { return }
+            shiftModifierPressed = key.modifierFlags.contains(UIKit.UIKeyModifierFlags.shift)
+            controlModifierPressed = key.modifierFlags.contains(UIKit.UIKeyModifierFlags.control)
+      }
     
     
     override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         
         keyboardDetectedKeyEvent = true // once it's true, it stays true, even if the keyboard is no longer used.
         
+        shiftModifierPressed = false
+        controlModifierPressed = false
+        
+        // TODO: factor out the addKeyEvent function from the switch. Will reduce code size
         for press in presses {
             guard let key = press.key else { continue }
-            switch key.keyCode {                    // this is a physical key, independent of modifiers such as CTRL, OPTION, SHIFT
+            // this is a physical key, independent of modifiers such as CTRL, OPTION, SHIFT
+            switch key.keyCode {
+                
+            // handle cardinal arrow keys, and keypad equivalents
             case .keyboardUpArrow, .keypad8 :
                 addKeyEvent(event: kUP_Key.ascii)
             case .keyboardDownArrow, .keypad2 :
@@ -521,6 +542,18 @@ extension BrogueViewController: UITextFieldDelegate {
                 addKeyEvent(event: kLEFT_key.ascii)
             case .keyboardRightArrow, .keypad6 :
                 addKeyEvent(event: kRIGHT_key.ascii)
+                
+            // handle remaining keypad arrow equivalents
+            case .keypad7 :
+                addKeyEvent(event: kUPLEFT_key.ascii)
+            case .keypad9 :
+                addKeyEvent(event: kUPRight_key.ascii)
+            case .keypad1 :
+                addKeyEvent(event: kDOWNLEFT_key.ascii)
+            case .keypad3 :
+                addKeyEvent(event: kDOWNRIGHT_key.ascii)
+                
+            // handle special keys, ESC, Enter, DEL, Backspace
             case .keyboardEscape :
                 escButton.isHidden = true
                 addKeyEvent(event: kESCKey)

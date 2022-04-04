@@ -187,11 +187,11 @@ boolean controlKeyIsDown() {
         return 1;
     }
     
-    return 0;
+    return brogueViewController.controlKeyDown;
 }
 
 boolean shiftKeyIsDown() {
-    return NO;
+    return brogueViewController.shiftKeyDown;
 }
 
 //void submitAchievementForCharString(char *achievementKey) {
