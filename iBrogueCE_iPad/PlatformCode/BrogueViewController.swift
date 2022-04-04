@@ -27,9 +27,6 @@ fileprivate let kESCKey: UInt8 = 27
 fileprivate let kDelKey: UInt8 = 177
 fileprivate let kEnterKey: UInt8 = "\n".ascii
 
-fileprivate var keyboardDetectedKeyevent: Bool = false; //we'll use this to keep from sending multiple special key events
-fileprivate let kbDetected: UInt8 = 254                 // totally arbitrary, but not a key likely to be entered from a keyboard
-
 private func synchronized<T>(_ lock: Any, _ body: () throws -> T) rethrows -> T {
     objc_sync_enter(lock)
     defer { objc_sync_exit(lock) }
@@ -109,6 +106,7 @@ extension BrogueGameEvent {
 // MARK: - BrogueViewController
 
 final class BrogueViewController: UIViewController {
+    fileprivate var keyboardDetectedKeyEvent : Bool  = false
     fileprivate var touchEvents = [UIBrogueTouchEvent]()
     fileprivate var lastTouchLocation = CGPoint()
     @objc fileprivate var directionsViewController: DirectionControlsViewController?
@@ -138,7 +136,7 @@ final class BrogueViewController: UIViewController {
                 
                 switch self.lastBrogueGameEvent {
                 case .keyBoardInputRequired:
-                    if ( !keyboardDetectedKeyevent) {
+                    if ( !self.keyboardDetectedKeyEvent) {
                         self.inputTextField.becomeFirstResponder()
                     }
                 case .showTitle, .openGameFinished:
@@ -366,6 +364,10 @@ extension BrogueViewController {
     @objc func hasTouchEvent() -> Bool {
         return !touchEvents.isEmpty
     }
+    
+    @objc func keyboardDetected() -> Bool {
+        return self.keyboardDetectedKeyEvent
+    }
 }
 
 extension BrogueViewController {
@@ -468,15 +470,19 @@ extension BrogueViewController {
 extension BrogueViewController: UITextFieldDelegate {
     @objc func requestTextInput(for string: String) {
         inputRequestString = string
+        
         DispatchQueue.main.async {
-            self.inputTextField.becomeFirstResponder()
+            self.escButton.isHidden = false
+            if ( !self.keyboardDetectedKeyEvent ) {
+                self.inputTextField.becomeFirstResponder()
+            }
         }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         inputTextField.resignFirstResponder()
         addKeyEvent(event: "\n".ascii)
-        escButton.isHidden = true
+        self.escButton.isHidden = true
         return true
     }
     
@@ -496,42 +502,36 @@ extension BrogueViewController: UITextFieldDelegate {
     
     override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         // TODO: set a timer or otherwise start a key repitition simulation
+        // TODO: may need to catch shift or control modifier here, and set a flag they're pressed
     }
     
     
     override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         
-        // when a key is pressed for the first time, a special key press is used to signal Brogue that a keyboard is present.
-        // In the Brogue main game loop, this keypress will set "keyboardDetected" to true, which will change the format of
-        // displays. We only do this the first time a key is pressed.
-        // TODO: right now, there's an issue with the use of "shift" modifier.
-        if (!keyboardDetectedKeyevent) {
-            keyboardDetectedKeyevent = true
-            addKeyEvent(event: kbDetected)
-        }
+        keyboardDetectedKeyEvent = true // once it's true, it stays true, even if the keyboard is no longer used.
         
         for press in presses {
             guard let key = press.key else { continue }
-            switch key.keyCode {
-            case .keyboardUpArrow :
+            switch key.keyCode {                    // this is a physical key, independent of modifiers such as CTRL, OPTION, SHIFT
+            case .keyboardUpArrow, .keypad8 :
                 addKeyEvent(event: kUP_Key.ascii)
-            case .keyboardDownArrow :
+            case .keyboardDownArrow, .keypad2 :
                 addKeyEvent(event: kDOWN_key.ascii)
-            case .keyboardLeftArrow :
+            case .keyboardLeftArrow, .keypad4 :
                 addKeyEvent(event: kLEFT_key.ascii)
-            case .keyboardRightArrow :
+            case .keyboardRightArrow, .keypad6 :
                 addKeyEvent(event: kRIGHT_key.ascii)
             case .keyboardEscape :
+                escButton.isHidden = true
                 addKeyEvent(event: kESCKey)
-            case .keyboardReturn :
+            case .keyboardReturnOrEnter :
+                escButton.isHidden = true
                 addKeyEvent(event: kEnterKey)
-            case .keyboardDeleteOrBackspace :
-                addKeyEvent(event: kDelKey)
-            case .keyboardDeleteForward :
+            case .keyboardDeleteOrBackspace, .keyboardDeleteForward :
                 addKeyEvent(event: kDelKey)
             default :
                 if !key.charactersIgnoringModifiers.isEmpty {
-                    addKeyEvent(event: key.charactersIgnoringModifiers.ascii)
+                    addKeyEvent(event: key.characters.ascii)        // DON'T ignore modifiers, to allow shifted letters
                 }
             }
         }
@@ -607,7 +607,7 @@ final class SKMagView: SKView {
         let rows = 3 // opposite/flipped
         let cols = 2
         
-        var cells: [[Cell]] = {
+        let cells: [[Cell]] = {
             var cells = [[Cell]]()
             
             for x in -(rows)...rows {

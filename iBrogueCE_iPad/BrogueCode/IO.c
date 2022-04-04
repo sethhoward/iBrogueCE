@@ -2745,9 +2745,6 @@ void executeKeystroke(signed long keystroke, boolean controlKey, boolean shiftKe
                 flashTemporaryAlert(" Screenshot saved in save directory ", 2000);
             }
             break;
-        case KEYBOARD_KEY:
-            keyboardPresent = true; // global, defined in rogue.h, initialized in RogueDriver
-            break;
         default:
             break;
     }
