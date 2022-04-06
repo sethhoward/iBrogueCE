@@ -23,9 +23,9 @@ import SpriteKit
 
 
 
-fileprivate let kESCKey: UInt8 = 27
-fileprivate let kDelKey: UInt8 = 177
-fileprivate let kEnterKey: UInt8 = "\n".ascii
+fileprivate let kESCKey = "\u{1B}"    // 27
+fileprivate let kDelKey = "\u{B1}"    // 177
+fileprivate let kEnterKey = "\n"
 
 private func synchronized<T>(_ lock: Any, _ body: () throws -> T) rethrows -> T {
     objc_sync_enter(lock)
@@ -65,7 +65,7 @@ fileprivate func getCellCoords(at point: CGPoint) -> CGPoint {
 // TODO: switch to Character
 extension String {
     var ascii: UInt8 {
-        return (unicodeScalars.map { UInt8($0.value) }).first!
+        return (unicodeScalars.map { UInt8(min(255,$0.value)) }).first!
     }
 }
 
@@ -227,7 +227,7 @@ final class BrogueViewController: UIViewController {
  
 extension BrogueViewController {
     @IBAction func escButtonPressed(_ sender: Any) {
-        addKeyEvent(event: kESCKey)
+        addKeyEvent(event: kESCKey.ascii)
         inputTextField.resignFirstResponder()
     }
     
@@ -246,7 +246,7 @@ extension BrogueViewController {
 
 extension BrogueViewController {
     override func motionBegan(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
-        addKeyEvent(event: kESCKey)
+        addKeyEvent(event: kESCKey.ascii)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -502,9 +502,14 @@ extension BrogueViewController: UITextFieldDelegate {
         escButton.isHidden = false
     }
     
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        escButton.isHidden = true
+        seedButton.isHidden = true
+    }
+    
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if string.isEmpty {
-            addKeyEvent(event: kDelKey)
+            addKeyEvent(event: kDelKey.ascii)
         } else {
             addKeyEvent(event: string.ascii)
         }
@@ -515,8 +520,8 @@ extension BrogueViewController: UITextFieldDelegate {
         // TODO: set a timer or otherwise start a key repitition simulation
         
             guard let key = presses.first?.key else { return }
-            shiftModifierPressed = key.modifierFlags.contains(UIKit.UIKeyModifierFlags.shift)
-            controlModifierPressed = key.modifierFlags.contains(UIKit.UIKeyModifierFlags.control)
+            shiftModifierPressed = key.modifierFlags.contains([.shift,.alphaShift])
+            controlModifierPressed = key.modifierFlags.contains(.control)
       }
     
     
@@ -527,45 +532,64 @@ extension BrogueViewController: UITextFieldDelegate {
         shiftModifierPressed = false
         controlModifierPressed = false
         
-        // TODO: factor out the addKeyEvent function from the switch. Will reduce code size
-        for press in presses {
+         for press in presses {
             guard let key = press.key else { continue }
+             
+             // handle special case of Command-v to allow pasting seeds from contests
+             // right now, this could happen anywhere, so careful if you paste while the game
+             // is running.
+             if (key.keyCode == .keyboardV &&
+                 (key.modifierFlags.contains(.command) &&
+                  !key.modifierFlags.contains([.shift,.alternate,.control]))) {
+                 // they entered Command-V, without other modifiers
+                 if (UIPasteboard.general.hasStrings) {
+                     let seedData = UIPasteboard.general.string!
+                     for ch in seedData {
+                         if ch.isASCII && ch.isNumber {
+                             addKeyEvent(event: ch.asciiValue!)
+                         }
+                     }
+                 }
+             }
+            
+            var sendKey: String = ""
             // this is a physical key, independent of modifiers such as CTRL, OPTION, SHIFT
             switch key.keyCode {
                 
             // handle cardinal arrow keys, and keypad equivalents
             case .keyboardUpArrow, .keypad8 :
-                addKeyEvent(event: kUP_Key.ascii)
+                sendKey = kUP_Key
             case .keyboardDownArrow, .keypad2 :
-                addKeyEvent(event: kDOWN_key.ascii)
+                sendKey = kDOWN_key
             case .keyboardLeftArrow, .keypad4 :
-                addKeyEvent(event: kLEFT_key.ascii)
+                sendKey = kLEFT_key
             case .keyboardRightArrow, .keypad6 :
-                addKeyEvent(event: kRIGHT_key.ascii)
+                sendKey = kRIGHT_key
                 
             // handle remaining keypad arrow equivalents
             case .keypad7 :
-                addKeyEvent(event: kUPLEFT_key.ascii)
+                sendKey = kUPLEFT_key
             case .keypad9 :
-                addKeyEvent(event: kUPRight_key.ascii)
+                sendKey = kUPRight_key
             case .keypad1 :
-                addKeyEvent(event: kDOWNLEFT_key.ascii)
+                sendKey = kDOWNLEFT_key
             case .keypad3 :
-                addKeyEvent(event: kDOWNRIGHT_key.ascii)
+                sendKey = kDOWNRIGHT_key
                 
             // handle special keys, ESC, Enter, DEL, Backspace
             case .keyboardEscape :
                 escButton.isHidden = true
-                addKeyEvent(event: kESCKey)
+                sendKey = kESCKey
             case .keyboardReturnOrEnter :
                 escButton.isHidden = true
-                addKeyEvent(event: kEnterKey)
+                sendKey = kEnterKey
             case .keyboardDeleteOrBackspace, .keyboardDeleteForward :
-                addKeyEvent(event: kDelKey)
+                sendKey = kDelKey
             default :
-                if !key.charactersIgnoringModifiers.isEmpty {
-                    addKeyEvent(event: key.characters.ascii)        // DON'T ignore modifiers, to allow shifted letters
-                }
+                sendKey = key.characters        // DON'T ignore modifiers, to allow shifted letters
+            }
+            if !sendKey.isEmpty {
+                addKeyEvent(event: sendKey.ascii)
             }
         }
     }
