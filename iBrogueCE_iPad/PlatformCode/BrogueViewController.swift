@@ -581,6 +581,7 @@ extension BrogueViewController: UITextFieldDelegate {
                 escButton.isHidden = true
                 sendKey = kESCKey
             case .keyboardReturnOrEnter :
+                inputTextField.resignFirstResponder()   // whenever Enter, make the onscreen keyboard go away
                 escButton.isHidden = true
                 sendKey = kEnterKey
             case .keyboardDeleteOrBackspace, .keyboardDeleteForward :
