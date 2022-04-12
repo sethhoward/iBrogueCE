@@ -1121,13 +1121,6 @@ void victory(boolean superVictory) {
         displayMoreSign();
         printString("Congratulations; you have transcended the Dungeons of Doom!                 ", mapToWindowX(0), mapToWindowY(-1), &black, &white, 0);
         displayMoreSign();
-        if (confirm("Do you want your possessions identified?",false)) {
-                for (theItem = packItems->nextItem; theItem != NULL; theItem = theItem->nextItem) {
-                    identify(theItem);
-                    theItem->flags &= ~ITEM_MAGIC_DETECTED;
-                }
-                displayInventory(ALL_ITEMS, 0, 0, true, false);
-            }
         clearDisplayBuffer(dbuf);
         deleteMessages();
         strcpy(displayedMessage[0], "You retire in splendor, forever renowned for your remarkable triumph.     ");
@@ -1138,13 +1131,6 @@ void victory(boolean superVictory) {
         displayMoreSign();
         printString("Congratulations; you have escaped from the Dungeons of Doom!     ", mapToWindowX(0), mapToWindowY(-1), &black, &white, 0);
         displayMoreSign();
-        if (confirm("Do you want your possessions identified?",false)) {
-                for (theItem = packItems->nextItem; theItem != NULL; theItem = theItem->nextItem) {
-                    identify(theItem);
-                    theItem->flags &= ~ITEM_MAGIC_DETECTED;
-                }
-                displayInventory(ALL_ITEMS, 0, 0, true, false);
-            }
         clearDisplayBuffer(dbuf);
         deleteMessages();
         strcpy(displayedMessage[0], "You sell your treasures and live out your days in fame and glory.");
