@@ -135,6 +135,7 @@ final class BrogueViewController: UIViewController {
                 //default visibility
                 self.escButton.isHidden = true
                 self.seedButton.isHidden = true
+                self.seedKeyDown = false
                 
                 switch self.lastBrogueGameEvent {
                 case .keyBoardInputRequired:
@@ -152,6 +153,7 @@ final class BrogueViewController: UIViewController {
                     self.seedKeyDown = false
                 case .messagePlayerHasDied:
                     self.seedButton.isHidden = true
+                    self.seedKeyDown = false
                     break
                 case .playerHasDiedMessageAcknowledged:
                     break
