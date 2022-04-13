@@ -21,3 +21,4 @@ Pods/
 *.ipa
 *.dSYM.zip
 *.mobileprovision
+*~
