@@ -69,7 +69,7 @@ About
 
 ### Brogue CE : iPad Edition
 This iPad Edition of BrogueCE (Brogue Community Edition) continues a port first
-made available by Seth Howard. This port takes work that tmewett did for
+made available by Seth Howard. This port takes work that @tmewett did for
 advancing the Brogue game on the PC, Mac, and Linux systems, and makes it run
 under iPad OS. 
 
@@ -93,10 +93,10 @@ also a wiki page: [Changes from original][cfo].
 
 ### How is the project run, and how are changes decided?
 
-This iPad OS port is maintained by btaylor84, with input and assistance from Seth Howard
-and tmewett.
+This iPad OS port is maintained by @btaylor84, with input and assistance from Seth Howard
+and @tmewett.
 
-The project is run with a "benevolent dictator" model, with tmewett in
+The project is run with a "benevolent dictator" model, with @tmewett in
 charge. There are many other testers and regular contributors; see the
 contribution guide to get involved!
 
