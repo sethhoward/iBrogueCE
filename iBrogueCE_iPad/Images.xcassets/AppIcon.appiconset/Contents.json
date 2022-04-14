@@ -2,75 +2,60 @@
   "images" : [
     {
       "idiom" : "ipad",
-      "size" : "20x20",
-      "scale" : "1x"
+      "scale" : "1x",
+      "size" : "20x20"
     },
     {
       "idiom" : "ipad",
-      "size" : "20x20",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "20x20"
     },
     {
-      "size" : "29x29",
       "idiom" : "ipad",
-      "filename" : "Icon-29.png",
-      "scale" : "1x"
+      "scale" : "1x",
+      "size" : "29x29"
     },
     {
-      "size" : "29x29",
       "idiom" : "ipad",
-      "filename" : "Icon-58@2x.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "29x29"
     },
     {
-      "size" : "40x40",
       "idiom" : "ipad",
-      "filename" : "Icon-40.png",
-      "scale" : "1x"
+      "scale" : "1x",
+      "size" : "40x40"
     },
     {
-      "size" : "40x40",
       "idiom" : "ipad",
-      "filename" : "Icon-40@2x.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "40x40"
     },
     {
-      "size" : "76x76",
       "idiom" : "ipad",
-      "filename" : "Icon-76.png",
-      "scale" : "1x"
+      "scale" : "1x",
+      "size" : "76x76"
     },
     {
-      "size" : "76x76",
+      "filename" : "iBrogue logo1521024.png",
       "idiom" : "ipad",
-      "filename" : "Icon-76@2x.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "76x76"
     },
     {
-      "size" : "83.5x83.5",
+      "filename" : "iBrogue logo1671024.png",
       "idiom" : "ipad",
-      "filename" : "icon-167@2x.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "83.5x83.5"
     },
     {
-      "size" : "1024x1024",
+      "filename" : "iBrogue logo10241024.png",
       "idiom" : "ios-marketing",
-      "filename" : "iTunesArtwork@2x.png",
-      "scale" : "1x"
-    },
-    {
-      "idiom" : "car",
-      "size" : "60x60",
-      "scale" : "2x"
-    },
-    {
-      "idiom" : "car",
-      "size" : "60x60",
-      "scale" : "3x"
+      "scale" : "1x",
+      "size" : "1024x1024"
     }
   ],
   "info" : {
-    "version" : 1,
-    "author" : "xcode"
+    "author" : "xcode",
+    "version" : 1
   }
 }
