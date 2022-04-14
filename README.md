@@ -47,9 +47,10 @@ allow you to enter a specific numeric seed. This seed guarantees that the
 dungeon you enter is exactly the same whenever that same seed is used. This
 allows competitions where every player enters the same dungeon layout, and sees
 how far they can get before dying. 
+![seed](https://user-images.githubusercontent.com/17453830/163439580-7d104329-46c9-48df-9cd5-3ab5d35cf1d6.png)
 
 ### In-game movement and screen touches
-
+<img src="https://user-images.githubusercontent.com/17453830/163440389-ae72701e-014e-4cbd-aeda-fec4db42ac0e.png" alt="compass rose" width=220 align=left>
 The "compass rose" figure on the left lower side of the screen can be used to
 direct your rogue by tapping or holding down one "arrow" of the compass in the
 direction you wish to move. Also, you can touch the game screen directly. A
@@ -58,18 +59,21 @@ and then when confirmed with another touch your rogue will follow the path. If
 you need to cancel an action, drag your finger till it highlights your rogue,
 then lift it off safely.
 
+<br>
+<br>
 If you are using an attached keyboard, Vi/Nethack keyboard movements (i.e.
 h,j,k,l,y,u,b,n) may be used in addition to the "compass rose".  Arrow keys and
 the keypad arrows are also accepted.
 
 The keywords along the bottom are also touch sensitive.
+<br><hr>
 
 About
 -----
 
 ### Brogue CE : iPad Edition
 This iPad Edition of BrogueCE (Brogue Community Edition) continues a port first
-made available by Seth Howard. This port takes work that @tmewett did for
+made available by @sethhoward. This port takes work that @tmewett did for
 advancing the Brogue game on the PC, Mac, and Linux systems, and makes it run
 under iPad OS. 
 
@@ -93,7 +97,7 @@ also a wiki page: [Changes from original][cfo].
 
 ### How is the project run, and how are changes decided?
 
-This iPad OS port is maintained by @btaylor84, with input and assistance from Seth Howard
+This iPad OS port is maintained by @btaylor84, with input and assistance from @sethhoward
 and @tmewett.
 
 The project is run with a "benevolent dictator" model, with @tmewett in
