@@ -111,3 +111,9 @@ well play-tested.
 
 
 [releases]: https://github.com/tmewett/BrogueCE/releases
+
+### Funding?
+
+This was a voluntary effort, but not an entirely expense-free one. If you're so
+inclined, you can [buy me a coffee](https://ko-fi.com/cameradv) to help 
+offset those expenses. 
