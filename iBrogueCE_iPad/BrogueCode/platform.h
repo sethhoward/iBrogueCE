@@ -23,6 +23,7 @@
 #define U_FILLED_CIRCLE_BARS  0x29F3
 
 // define characters in the Brogue CE font
+// note that these are the same as (glyph - 130)+0x4000
 #define U_TILES_POTION 0x4000
 #define U_TILES_GRASS 0x4001
 #define U_TILES_WALL 0x4002
@@ -152,7 +153,9 @@
 #define U_TILES_SAC_ALTAR 0x407E
 #define U_TILES_ORB_ALTAR 0x407F
 
-
+#define maybeTiled(glyph, plain) ((graphicsMode == TILES_GRAPHICS) ||                                       \
+                                ((graphicsMode == HYBRID_GRAPHICS) && isEnvironmentGlyph(glyph))            \
+                                    ? ((glyph-130)+0x4000) : plain)
 
 // #define U_UP_TRIANGLE  0x2206
 // #define U_DOWN_TRIANGLE  0x2207
