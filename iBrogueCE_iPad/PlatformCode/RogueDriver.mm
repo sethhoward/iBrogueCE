@@ -557,20 +557,36 @@ boolean modifierHeld(int modifier) {
     return controlKeyIsDown() || shiftKeyIsDown();
 }
 
-boolean hasGraphics = false;
+enum graphicsModes useGraphicsMode(enum graphicsModes newMode) {
+    // for now, just cycle through the choices, but don't do anything
+    return newMode;
+//    switch (newMode) {
+//        case TEXT_GRAPHICS :
+//            return HYBRID_GRAPHICS;
+//        case TILES_GRAPHICS :
+//            return TEXT_GRAPHICS;
+//        case HYBRID_GRAPHICS :
+//            return TILES_GRAPHICS;
+//    }
+}
+
+
+
+boolean hasGraphics = true;
 boolean serverMode = false;
 boolean keyboardPresent = false;            // no keyboard until key pressed, set in nextKeyOrMouseEvent()
-enum graphicsModes graphicsMode = TEXT_GRAPHICS;
+enum graphicsModes graphicsMode = TEXT_GRAPHICS; // start in TEXT_GRAPHICS till mode switched
+
 struct brogueConsole currentConsole = {
-    rogueMain,
-    pauseForMilliseconds,
-    nextKeyOrMouseEvent,
-    plotChar,
-    NULL,
-    modifierHeld,
+    rogueMain,              // initialize data structure, call rogueMain
+    pauseForMilliseconds,   // pause, return boolean if input event available
+    nextKeyOrMouseEvent,    // block until event available
+    plotChar,               // draw a character at a location, with colors
+    NULL,                   // remap keyboard keys
+    modifierHeld,           // is modifier held? flags, 0 for shift, 1 for Ctrl
     
     // optional
-    NULL,
-    NULL,
-    NULL
+    NULL,                   // *notifyEvent : call-back for certain events
+    NULL,                   // *takeScreenshot
+    useGraphicsMode         // set graphics mode: TEXT, TILE, HYBRID
 };

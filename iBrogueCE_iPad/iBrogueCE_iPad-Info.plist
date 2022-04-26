@@ -30,7 +30,7 @@
 	<true/>
 	<key>UIAppFonts</key>
 	<array>
-		<string>MONACO.TTF</string>
+		<string>BrogueCE.ttf</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>
