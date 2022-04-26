@@ -151,6 +151,7 @@ fileprivate extension RogueScene {
             case glyph
             case omega
             case wall
+            case monster
             
             var fontName: String { "Brogue" }
             
@@ -167,6 +168,9 @@ fileprivate extension RogueScene {
                     
                 case .wall:
                     return 1.1
+                    
+                case .monster:
+                    return 1.4
                     
                 default:
                     return 1
@@ -206,6 +210,11 @@ fileprivate extension RogueScene {
                     self = .ring
                 case U_TILES_WALL_TOP, U_TILES_WALL :
                     self = .wall
+                case "\u{4017}"..."\u{402a}",
+                    "\u{402e}"..."\u{403e}",
+                    "\u{4052}"..."\u{405a}",
+                    "\u{405c}","\u{4061}" :
+                    self = .monster
                 default:
                     self = .glyph
                 }

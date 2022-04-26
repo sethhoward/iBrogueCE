@@ -557,17 +557,10 @@ boolean modifierHeld(int modifier) {
     return controlKeyIsDown() || shiftKeyIsDown();
 }
 
-enum graphicsModes useGraphicsMode(enum graphicsModes newMode) {
+enum graphicsModes _setGraphicsMode(enum graphicsModes newMode) {
     // for now, just cycle through the choices, but don't do anything
     return newMode;
-//    switch (newMode) {
-//        case TEXT_GRAPHICS :
-//            return HYBRID_GRAPHICS;
-//        case TILES_GRAPHICS :
-//            return TEXT_GRAPHICS;
-//        case HYBRID_GRAPHICS :
-//            return TILES_GRAPHICS;
-//    }
+
 }
 
 
@@ -588,5 +581,5 @@ struct brogueConsole currentConsole = {
     // optional
     NULL,                   // *notifyEvent : call-back for certain events
     NULL,                   // *takeScreenshot
-    useGraphicsMode         // set graphics mode: TEXT, TILE, HYBRID
+    _setGraphicsMode         // set graphics mode: TEXT, TILE, HYBRID
 };
