@@ -513,7 +513,10 @@ extension BrogueViewController: UITextFieldDelegate {
         if string.isEmpty {
             addKeyEvent(event: kDelKey.ascii)
         } else {
-            addKeyEvent(event: string.ascii)
+            // string may be multiple characters, if a paste operation occured
+            for char in string {
+                addKeyEvent(event: char.asciiValue ?? " ".ascii)
+            }
         }
         return true
     }

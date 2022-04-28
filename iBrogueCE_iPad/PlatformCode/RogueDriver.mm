@@ -85,6 +85,7 @@ void plotChar(enum displayGlyph inputChar,
 			  short xLoc, short yLoc,
 			  short foreRed, short foreGreen, short foreBlue,
 			  short backRed, short backGreen, short backBlue) {
+    unsigned int glyphCode;
     
    // NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
@@ -94,7 +95,16 @@ void plotChar(enum displayGlyph inputChar,
     CGFloat foreComponents[] = {(CGFloat)(foreRed * .01), (CGFloat)(foreGreen * .01), (CGFloat)(foreBlue * .01), 1.};
     CGColorRef foreColor = CGColorCreate(_colorSpace, foreComponents);
 
-    [skviewPort setCellWithX:xLoc y:yLoc code:glyphToUnicode(inputChar) bgColor:backColor fgColor:foreColor];
+    
+    if ( (inputChar > 128) &&
+         ((graphicsMode == TILES_GRAPHICS) ||
+         ((graphicsMode == HYBRID_GRAPHICS) && (isEnvironmentGlyph(inputChar)))) ) {
+        glyphCode = (inputChar-130) + 0x4000;
+    } else {
+        glyphCode = glyphToUnicode(inputChar);
+    }
+    
+    [skviewPort setCellWithX:xLoc y:yLoc code:glyphCode bgColor:backColor fgColor:foreColor];
     
     CGColorRelease(backColor);
     CGColorRelease(foreColor);
