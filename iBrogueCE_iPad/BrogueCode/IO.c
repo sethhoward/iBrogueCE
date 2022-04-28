@@ -2785,7 +2785,7 @@ boolean getInputTextString(char *inputText,             // character buffer to r
     // x and y mark the origin for text entry.
     if (useDialogBox) {
         x = (COLS - max(maxLength, strLenWithoutEscapes(prompt))) / 2;
-        y = ROWS / 2 - 1;
+        y = ROWS / 2 - 5;           // BT: move dialogues up so the onscreen iPad keyboard doesn't obscure them
         clearDisplayBuffer(dbuf);
         rectangularShading(x - 1, y - 2, max(maxLength, strLenWithoutEscapes(prompt)) + 2,
                            4, &interfaceBoxColor, INTERFACE_OPACITY, dbuf);
