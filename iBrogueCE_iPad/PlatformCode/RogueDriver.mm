@@ -85,6 +85,8 @@ void plotChar(enum displayGlyph inputChar,
 			  short xLoc, short yLoc,
 			  short foreRed, short foreGreen, short foreBlue,
 			  short backRed, short backGreen, short backBlue) {
+   
+    unsigned int glyph;
     
    // NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
@@ -94,11 +96,14 @@ void plotChar(enum displayGlyph inputChar,
     CGFloat foreComponents[] = {(CGFloat)(foreRed * .01), (CGFloat)(foreGreen * .01), (CGFloat)(foreBlue * .01), 1.};
     CGColorRef foreColor = CGColorCreate(_colorSpace, foreComponents);
 
-    [skviewPort setCellWithX:xLoc y:yLoc code:glyphToUnicode(inputChar) bgColor:backColor fgColor:foreColor];
+    glyph = glyphToUnicode(inputChar);
+    if (graphicsMode == TILES_GRAPHICS || (graphicsMode == HYBRID_GRAPHICS && isEnvironmentGlyph(inputChar))) { glyph = (glyph-130)+0x4000; }
+    [skviewPort setCellWithX:xLoc y:yLoc code:glyph bgColor:backColor fgColor:foreColor];
     
     CGColorRelease(backColor);
     CGColorRelease(foreColor);
 }
+
 
 __unused void pausingTimerStartsNow() {}
 
@@ -558,9 +563,7 @@ boolean modifierHeld(int modifier) {
 }
 
 enum graphicsModes _setGraphicsMode(enum graphicsModes newMode) {
-    // for now, just cycle through the choices, but don't do anything
-    return newMode;
-
+    return graphicsMode = newMode;
 }
 
 

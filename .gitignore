@@ -21,5 +21,6 @@ Pods/
 *.ipa
 *.dSYM.zip
 *.mobileprovision
-*~U_TILES.h
+*~
+U_TILES.h
 appeal*.md
