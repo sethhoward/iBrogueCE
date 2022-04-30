@@ -81,7 +81,7 @@ static BrogueViewController *brogueViewController;
 //  plotChar: plots inputChar at (xLoc, yLoc) with specified background and foreground colors.
 //  Color components are given in ints from 0 to 100.
 
-void plotChar(enum displayGlyph inputChar,
+void _plotChar(enum displayGlyph inputChar,
 			  short xLoc, short yLoc,
 			  short foreRed, short foreGreen, short foreBlue,
 			  short backRed, short backGreen, short backBlue) {
@@ -113,7 +113,7 @@ void plotChar(enum displayGlyph inputChar,
 __unused void pausingTimerStartsNow() {}
 
 // Returns true if the player interrupted the wait with a keystroke; otherwise false.
-boolean pauseForMilliseconds(short milliseconds) {
+boolean _pauseForMilliseconds(short milliseconds) {
     BOOL hasEvent = NO;
     
     [NSThread sleepForTimeInterval:milliseconds/1000.];
@@ -125,7 +125,7 @@ boolean pauseForMilliseconds(short milliseconds) {
 	return hasEvent;
 }
 
-void nextKeyOrMouseEvent(rogueEvent *returnEvent, __unused boolean textInput, boolean colorsDance) {
+void _nextKeyOrMouseEvent(rogueEvent *returnEvent, __unused boolean textInput, boolean colorsDance) {
 	short x, y;
     float width = [[UIScreen mainScreen] bounds].size.width;
     float height = [UIScreen safeBounds].size.height;
@@ -192,7 +192,7 @@ void setBrogueGameEvent(CBrogueGameEvent brogueGameEvent) {
     brogueViewController.lastBrogueGameEvent = (BrogueGameEvent)brogueGameEvent;
 }
 
-boolean controlKeyIsDown() {
+boolean _controlKeyIsDown() {
     if (brogueViewController.seedKeyDown) {
         return 1;
     }
@@ -200,7 +200,7 @@ boolean controlKeyIsDown() {
     return brogueViewController.controlKeyDown;
 }
 
-boolean shiftKeyIsDown() {
+boolean _shiftKeyIsDown() {
     return brogueViewController.shiftKeyDown;
 }
 
@@ -208,178 +208,6 @@ boolean shiftKeyIsDown() {
 //    [[GameCenterManager sharedInstance] submitAchievement:[NSString stringWithUTF8String:achievementKey] percentComplete:100.];
 //}
 
-#pragma mark - OSX->iOS implementation
-
-void initHighScores() {
-	NSMutableArray *scoresArray, *textArray, *datesArray;
-	short j, theCount;
-    
-	if ([[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores scores"] == nil
-		|| [[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores text"] == nil
-		|| [[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores dates"] == nil) {
-        
-		scoresArray = [NSMutableArray arrayWithCapacity:HIGH_SCORES_COUNT];
-		textArray = [NSMutableArray arrayWithCapacity:HIGH_SCORES_COUNT];
-		datesArray = [NSMutableArray arrayWithCapacity:HIGH_SCORES_COUNT];
-        
-		for (j=0; j<HIGH_SCORES_COUNT; j++) {
-			[scoresArray addObject:[NSNumber numberWithLong:0]];
-			[textArray addObject:[NSString string]];
-			[datesArray addObject:[NSDate date]];
-		}
-        
-		[[NSUserDefaults standardUserDefaults] setObject:scoresArray forKey:@"high scores scores"];
-		[[NSUserDefaults standardUserDefaults] setObject:textArray forKey:@"high scores text"];
-		[[NSUserDefaults standardUserDefaults] setObject:datesArray forKey:@"high scores dates"];
-	}
-    
-	theCount = [[[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores scores"] count];
-    
-	if (theCount < HIGH_SCORES_COUNT) { // backwards compatibility
-		scoresArray = [NSMutableArray arrayWithCapacity:HIGH_SCORES_COUNT];
-		textArray = [NSMutableArray arrayWithCapacity:HIGH_SCORES_COUNT];
-		datesArray = [NSMutableArray arrayWithCapacity:HIGH_SCORES_COUNT];
-        
-		[scoresArray setArray:[[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores scores"]];
-		[textArray setArray:[[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores text"]];
-		[datesArray setArray:[[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores dates"]];
-        
-		for (j=theCount; j<HIGH_SCORES_COUNT; j++) {
-			[scoresArray addObject:[NSNumber numberWithLong:0]];
-			[textArray addObject:[NSString string]];
-			[datesArray addObject:[NSDate date]];
-		}
-        
-		[[NSUserDefaults standardUserDefaults] setObject:scoresArray forKey:@"high scores scores"];
-		[[NSUserDefaults standardUserDefaults] setObject:textArray forKey:@"high scores text"];
-		[[NSUserDefaults standardUserDefaults] setObject:datesArray forKey:@"high scores dates"];
-	}
-    
-    if ([[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores seeds"] == nil) {
-        NSMutableArray *seedArray = [NSMutableArray arrayWithCapacity:HIGH_SCORES_COUNT];
-        for (j = 0; j < HIGH_SCORES_COUNT; j++) {
-            [seedArray addObject:[NSNumber numberWithInt:0]];
-        }
-        
-        [[NSUserDefaults standardUserDefaults] setObject:seedArray forKey:@"high scores seeds"];
-    }
-    
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-// returns the index number of the most recent score
-short getHighScoresList(rogueHighScoresEntry returnList[HIGH_SCORES_COUNT]) {
-	NSArray *scoresArray, *textArray, *datesArray;
-	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"MM/dd/yy"];
-    NSDate *mostRecentDate;
-	short i, j, maxIndex, mostRecentIndex;
-	long maxScore;
-	boolean scoreTaken[HIGH_SCORES_COUNT];
-    
-	// no scores have been taken
-	for (i=0; i<HIGH_SCORES_COUNT; i++) {
-		scoreTaken[i] = false;
-	}
-    
-	initHighScores();
-    
-	scoresArray = [[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores scores"];
-	textArray = [[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores text"];
-	datesArray = [[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores dates"];
-    NSArray *seedArray = [[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores seeds"];
-    
-	mostRecentDate = [NSDate distantPast];
-    
-	// store each value in order into returnList
-	for (i=0; i<HIGH_SCORES_COUNT; i++) {
-		// find the highest value that hasn't already been taken
-		maxScore = 0; // excludes scores of zero
-		for (j=0; j<HIGH_SCORES_COUNT; j++) {
-			if (scoreTaken[j] == false && [[scoresArray objectAtIndex:j] longValue] >= maxScore) {
-				maxScore = [[scoresArray objectAtIndex:j] longValue];
-				maxIndex = j;
-			}
-		}
-		// maxIndex identifies the highest non-taken score
-		scoreTaken[maxIndex] = true;
-		returnList[i].score = [[scoresArray objectAtIndex:maxIndex] longValue];
-		strcpy(returnList[i].description, [[textArray objectAtIndex:maxIndex] cStringUsingEncoding:NSASCIIStringEncoding]);
-		strcpy(returnList[i].date, [[dateFormatter stringFromDate:[datesArray objectAtIndex:maxIndex]] cStringUsingEncoding:NSASCIIStringEncoding]);
-        returnList[i].seed = [[seedArray objectAtIndex:maxIndex] longValue];
-        
-		// if this is the most recent score we've seen so far
-		if ([mostRecentDate compare:[datesArray objectAtIndex:maxIndex]] == NSOrderedAscending) {
-			mostRecentDate = [datesArray objectAtIndex:maxIndex];
-			mostRecentIndex = i;
-		}
-	}
-    
-    
-	return mostRecentIndex;
-}
-
-// saves the high scores entry over the lowest-score entry if it qualifies.
-// returns whether the score qualified for the list.
-// This function ignores the date passed to it in theEntry and substitutes the current
-// date instead.
-
-// TODO: going to assume every save highscore qualifies as an end game screen.
-
-boolean saveHighScore(rogueHighScoresEntry theEntry) {
-	NSMutableArray *scoresArray, *textArray, *datesArray;
-	NSNumber *newScore;
-	NSString *newText;
-    
-	short j, minIndex = -1;
-	long minScore = theEntry.score;
-    
-	// generate high scores if prefs don't exist or contain no high scores data
-	initHighScores();
-    
-	scoresArray = [NSMutableArray arrayWithCapacity:HIGH_SCORES_COUNT];
-	textArray = [NSMutableArray arrayWithCapacity:HIGH_SCORES_COUNT];
-	datesArray = [NSMutableArray arrayWithCapacity:HIGH_SCORES_COUNT];
-    NSMutableArray *seedArray = [[[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores seeds"] mutableCopy];
-    
-	[scoresArray setArray:[[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores scores"]];
-	[textArray setArray:[[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores text"]];
-	[datesArray setArray:[[NSUserDefaults standardUserDefaults] arrayForKey:@"high scores dates"]];
-    
-	// find the lowest value
-	for (j=0; j<HIGH_SCORES_COUNT; j++) {
-		if ([[scoresArray objectAtIndex:j] longValue] < minScore) {
-			minScore = [[scoresArray objectAtIndex:j] longValue];
-			minIndex = j;
-		}
-	}
-
-//    if (theEntry.score > 0) {
-//        [[GameCenterManager sharedInstance] reportScore:theEntry.score forCategory:kBrogueHighScoreLeaderBoard];
-//    }
-    
-	if (minIndex == -1) { // didn't qualify
-		return false;
-	}
-    
-	// minIndex identifies the score entry to be replaced
-	newScore = [NSNumber numberWithLong:theEntry.score];
-	newText = [NSString stringWithCString:theEntry.description encoding:NSASCIIStringEncoding];
-    NSNumber *seed = [NSNumber numberWithLong:theEntry.seed];
-    
-	[scoresArray replaceObjectAtIndex:minIndex withObject:newScore];
-	[textArray replaceObjectAtIndex:minIndex withObject:newText];
-	[datesArray replaceObjectAtIndex:minIndex withObject:[NSDate date]];
-    [seedArray replaceObjectAtIndex:minIndex withObject:seed];
-    
-	[[NSUserDefaults standardUserDefaults] setObject:scoresArray forKey:@"high scores scores"];
-	[[NSUserDefaults standardUserDefaults] setObject:textArray forKey:@"high scores text"];
-	[[NSUserDefaults standardUserDefaults] setObject:datesArray forKey:@"high scores dates"];
-    [[NSUserDefaults standardUserDefaults] setObject:seedArray forKey:@"high scores seeds"];
-	[[NSUserDefaults standardUserDefaults] synchronize];
-    
-	return true;
-}
 
 void initializeLaunchArguments(enum NGCommands *command, char *path, unsigned long *seed) {
 	//*command = NG_SCUM;
@@ -388,37 +216,8 @@ void initializeLaunchArguments(enum NGCommands *command, char *path, unsigned lo
 	*seed = 0;
 }
 
-void migrateFilesFromLegacyStorageLocation() {
-    NSFileManager *manager = [NSFileManager defaultManager];
-    NSError *err;
-    
-    NSString *legacyPath = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
-    
-    // Use a folder under Application Support named after the application.
-    NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleName"];
-    NSString *legacySupportPath = [legacyPath stringByAppendingPathComponent: appName];
-    
-    // Look up the full path to the user's Application Support folder (usually ~/Library/Application Support/).
-    NSString *basePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
-    NSString *documentsPath = basePath;//[basePath stringByAppendingPathComponent:@"/"];
-    
-    if ([manager fileExistsAtPath:legacySupportPath]) {
-        // copy all files into the documents directory
-    //    [manager copyItemAtPath:legacySupportPath toPath:documentsPath error:&err];
-        
-        NSArray *legacyFolderContents = [manager contentsOfDirectoryAtPath:legacySupportPath error:&err];
-        
-        for (NSString *source in legacyFolderContents) {
-            if (![manager copyItemAtPath:[legacySupportPath stringByAppendingPathComponent:source] toPath:[documentsPath stringByAppendingPathComponent:source] error:&err]) {
-                NSLog(@"%@", err);
-            }
-        }
-    }
-}
-
 void initializeBrogueSaveLocation() {
-    migrateFilesFromLegacyStorageLocation();
-    
+      
     NSFileManager *manager = [NSFileManager defaultManager];
     NSError *err;
     
@@ -444,127 +243,10 @@ void rogueMain() {
 	mainBrogueJunction();
 }
 
-#define ADD_FAKE_PADDING_FILES 0
-
-// Returns a malloc'ed fileEntry array, and puts the file count into *fileCount.
-// Also returns a pointer to the memory that holds the file names, so that it can also
-// be freed afterward.
-fileEntry *listFiles(short *fileCount, char **dynamicMemoryBuffer) {
-	short i, count, thisFileNameLength;
-	unsigned long bufferPosition, bufferSize;
-	unsigned long *offsets;
-	fileEntry *fileList;
-	NSMutableArray *array;
-	NSFileManager *manager = [NSFileManager defaultManager];
-    NSError *err;
-	NSDictionary *fileAttributes;
-	NSDateFormatter *dateFormatter;
-	const char *thisFileName;
-    
-	char tempString[500];
-    
-	bufferPosition = bufferSize = 0;
-	*dynamicMemoryBuffer = NULL;
-    
-	dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"MM/dd/yy"];//                initWithDateFormat:@"%1m/%1d/%y" allowNaturalLanguage:YES];
-    
-	array = [[manager contentsOfDirectoryAtPath:[manager currentDirectoryPath]  error:&err] mutableCopy];
-	count = [array count];
-    
-    //BOOL ascending = YES;
-
-    // sort by creation date
-    NSMutableArray* filesAndProperties = [NSMutableArray arrayWithCapacity:[array count]];
-
-    for(NSString* file in array) {
-
-        if (![file isEqualToString:@".DS_Store"]) {
-            NSString* filePath = [[manager currentDirectoryPath] stringByAppendingPathComponent:file];
-            NSDictionary* properties = [[NSFileManager defaultManager]
-                                        attributesOfItemAtPath:filePath
-                                        error:&err];
-            NSDate* modDate = [properties objectForKey:NSFileModificationDate];
-
-            [filesAndProperties addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                           file, @"path",
-                                           modDate, @"lastModDate",
-                                           nil]];
-
-        }
-    }
-
-    // Sort using a block - order inverted as we want latest date first
-    NSArray* sortedFiles = [filesAndProperties sortedArrayUsingComparator:
-                            ^(id path1, id path2)
-                            {
-                                // compare
-                                NSComparisonResult comp = [[path1 objectForKey:@"lastModDate"] compare:
-                                                           [path2 objectForKey:@"lastModDate"]];
-                                // invert ordering
-                                if (comp == NSOrderedDescending) {
-                                    comp = NSOrderedAscending;
-                                }
-                                else if(comp == NSOrderedAscending){
-                                    comp = NSOrderedDescending;
-                                }
-                                return comp;
-                            }];
-    
-    
-    [array removeAllObjects];
-    for(NSDictionary* dict in sortedFiles) {
-        [array addObject:[dict objectForKey:@"path"]];
-    }
-    
-	fileList = (fileEntry *)malloc((count + ADD_FAKE_PADDING_FILES) * sizeof(fileEntry));
-	offsets = (unsigned long*)malloc((count + ADD_FAKE_PADDING_FILES) * sizeof(unsigned long));
-    
-	for (i=0; i < count + ADD_FAKE_PADDING_FILES; i++) {
-		if (i < count) {
-			thisFileName = [[array objectAtIndex:i] cStringUsingEncoding:NSASCIIStringEncoding];
-			fileAttributes = [manager attributesOfItemAtPath:[array objectAtIndex:i] error:nil];
-            
-            NSString *aDate = [dateFormatter stringFromDate:[fileAttributes fileModificationDate]];
-            
-            const char *date = [aDate cStringUsingEncoding:NSASCIIStringEncoding];
-            
-			strcpy(fileList[i].date,
-				   date);
-		} else {
-			// Debug feature.
-			sprintf(tempString, "Fake padding file %i.broguerec", i - count + 1);
-			thisFileName = &(tempString[0]);
-			strcpy(fileList[i].date, "12/12/12");
-		}
-        
-		thisFileNameLength = strlen(thisFileName);
-        
-		if (thisFileNameLength + bufferPosition > bufferSize) {
-			bufferSize += sizeof(char) * 1024;
-			*dynamicMemoryBuffer = (char *) realloc(*dynamicMemoryBuffer, bufferSize);
-		}
-        
-		offsets[i] = bufferPosition; // Have to store these as offsets instead of pointers, as realloc could invalidate pointers.
-        
-		strcpy(&((*dynamicMemoryBuffer)[bufferPosition]), thisFileName);
-		bufferPosition += thisFileNameLength + 1;
-	}
-    
-	// Convert the offsets to pointers.
-	for (i = 0; i < count + ADD_FAKE_PADDING_FILES; i++) {
-		fileList[i].path = &((*dynamicMemoryBuffer)[offsets[i]]);
-	}
-    
-	free(offsets);
-    
-	*fileCount = count + ADD_FAKE_PADDING_FILES;
-	return fileList;
-}
 
 
-boolean modifierHeld(int modifier) {
-    return controlKeyIsDown() || shiftKeyIsDown();
+boolean _modifierHeld(int modifier) {
+    return _controlKeyIsDown() || _shiftKeyIsDown();
 }
 
 enum graphicsModes _setGraphicsMode(enum graphicsModes newMode) {
@@ -582,11 +264,11 @@ enum graphicsModes graphicsMode = TEXT_GRAPHICS; // start in TEXT_GRAPHICS till 
 
 struct brogueConsole currentConsole = {
     rogueMain,              // initialize data structure, call rogueMain
-    pauseForMilliseconds,   // pause, return boolean if input event available
-    nextKeyOrMouseEvent,    // block until event available
-    plotChar,               // draw a character at a location, with colors
+    _pauseForMilliseconds,   // pause, return boolean if input event available
+    _nextKeyOrMouseEvent,    // block until event available
+    _plotChar,               // draw a character at a location, with colors
     NULL,                   // remap keyboard keys
-    modifierHeld,           // is modifier held? flags, 0 for shift, 1 for Ctrl
+    _modifierHeld,           // is modifier held? flags, 0 for shift, 1 for Ctrl
     
     // optional
     NULL,                   // *notifyEvent : call-back for certain events
