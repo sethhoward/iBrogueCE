@@ -369,7 +369,7 @@ typedef struct rogueHighScoresEntry {
 
 typedef struct fileEntry {
     char *path;
-    char *date;
+    struct tm date; 
 } fileEntry;
 
 enum RNGs {

@@ -86,7 +86,6 @@
 		C57A963016D7EAD500C233F1 /* iBrogueCE_iPad-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "iBrogueCE_iPad-Info.plist"; sourceTree = "<group>"; };
 		C57A963216D7EAD500C233F1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C57A963416D7EAD500C233F1 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		C57A963616D7EAD500C233F1 /* iBrogue_iPad-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iBrogue_iPad-Prefix.pch"; sourceTree = "<group>"; };
 		C57A963716D7EAD500C233F1 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		C57A963816D7EAD500C233F1 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		C57A963A16D7EAD500C233F1 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
@@ -212,7 +211,6 @@
 				C57A963016D7EAD500C233F1 /* iBrogueCE_iPad-Info.plist */,
 				C57A963116D7EAD500C233F1 /* InfoPlist.strings */,
 				C57A963416D7EAD500C233F1 /* main.m */,
-				C57A963616D7EAD500C233F1 /* iBrogue_iPad-Prefix.pch */,
 				C57A963A16D7EAD500C233F1 /* Default.png */,
 				C57A963C16D7EAD500C233F1 /* Default@2x.png */,
 				C57A963E16D7EAD500C233F1 /* Default-568h@2x.png */,

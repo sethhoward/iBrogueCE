@@ -508,8 +508,7 @@ fileEntry *addfile(struct filelist *list, const char *name) {
 
     // add the new file and copy the name into the buffer
     list->files[list->nfiles].path = ((char *) NULL) + list->nextname; // don't look at them until they are transferred out
-//   list->files[list->nfiles].date = (struct tm) {0}; // associate a dummy date (1899-12-31) to avoid random data, it will be correctly populated when using listFiles()
-
+    list->files[list->nfiles].date = (struct tm) {0}; // zero out the date structure
     strncpy(list->names + list->nextname, name, len + 1);
 
     list->nextname += len + 1;
@@ -565,7 +564,8 @@ fileEntry *listFiles(short *fileCount, char **namebuffer) {
                 if (file != NULL) {
                     // add the modification date to the file entry
                     timeinfo = localtime(&statbuf.st_mtime);
-                    file->date = timeinfo;
+                    file->date = *timeinfo;
+//                    sprintf(file->date,"%02d-%02d-%02d",timeinfo->tm_year-100,timeinfo->tm_mon,timeinfo->tm_mday);
                 }
             }
         }
