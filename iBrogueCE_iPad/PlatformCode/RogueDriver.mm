@@ -96,7 +96,7 @@ void _plotChar(enum displayGlyph inputChar,
     CGColorRef foreColor = CGColorCreate(_colorSpace, foreComponents);
 
     
-    if ( (inputChar > 128) &&
+    if ( (inputChar > G_DOWN_ARROW) &&
          ((graphicsMode == TILES_GRAPHICS) ||
          ((graphicsMode == HYBRID_GRAPHICS) && (isEnvironmentGlyph(inputChar)))) ) {
         glyphCode = (inputChar-130) + 0x4000;
