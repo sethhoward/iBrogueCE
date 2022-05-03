@@ -369,9 +369,7 @@ typedef struct rogueHighScoresEntry {
 
 typedef struct fileEntry {
     char *path;
-    // Seth: RogueDriver.mm wants to copy a string into this field
-    // struct tm date;
-    char date[8+1];
+    struct tm date; 
 } fileEntry;
 
 enum RNGs {
