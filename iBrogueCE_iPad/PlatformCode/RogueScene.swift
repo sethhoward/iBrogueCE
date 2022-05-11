@@ -45,6 +45,10 @@ let U_OMEGA = "\u{03A9}"        // omega glyph (special door)
 let U_CIRCLE_BARS = "\u{29F2}"
 let U_FILLED_CIRCLE_BARS = "\u{29F3}"
 
+// special characters from BrogueCE font, copied from platform.h
+let U_TILES_WALL_TOP = "\u{4051}"
+let U_TILES_WALL = "\u{4002}"
+
 extension CGSize {
     public init(rows: Int, cols: Int) {
         self = CGSize(width: rows, height: cols)
@@ -72,10 +76,11 @@ extension CGSize {
     // We don't want small letters scaled to huge proportions, so we only allow letters to stretch 
     // within a certain range (e.g. size of M +/- 20%)
     fileprivate lazy var maxScaleFactor: CGFloat = {
+
         let char: NSString = "M" // Good letter to do the base calculations from
         let calcBounds: CGRect = char.boundingRect(with: CGSize(width: 0, height: 0),
                                                    options: [.usesDeviceMetrics, .usesFontLeading],
-                                                   attributes: convertToOptionalNSAttributedStringKeyDictionary([convertFromNSAttributedStringKey(NSAttributedString.Key.font): UIFont(name: "Monaco", size: 120)!]), context: nil)
+                                                   attributes: convertToOptionalNSAttributedStringKeyDictionary([convertFromNSAttributedStringKey(NSAttributedString.Key.font): UIFont(name: "Brogue", size: 120)!]), context: nil)
         return min(self.cellSize.width / calcBounds.width, self.cellSize.height / calcBounds.height)
     }()
     
@@ -129,17 +134,9 @@ fileprivate extension RogueScene {
 
     // Create/find glyph textures
     func getTexture(glyph: String) -> SKTexture {
-        return textureMap[glyph] ?? addTexture(glyph: glyph)
+         return textureMap[glyph] ?? addTexture(glyph: glyph)
     }
-    
-    // modify certain glyphs to overcome "Emoji effects"
-    func modifyGlyphEncoding(glyph: String) -> String {
-        if glyph == U_ARIES {
-            let bytes: [Unicode.UTF8.CodeUnit] = [0xe2,0x99,0x88,0xef,0xb8,0x8e] // extended UTF-8 coding for ARIES symbol
-            return String(bytes: bytes, encoding: String.Encoding.utf8) ?? glyph
-        }
-        return glyph
-    }
+
     
     func createTextureFromGlyph(glyph: String, size: CGSize) -> SKTexture {
                 
@@ -153,25 +150,28 @@ fileprivate extension RogueScene {
             case weapon
             case glyph
             case omega
+            case wall
+            case monster
             
-            var fontName: String {
-                switch self {
-//                case .foliage, .ring, .weapon, .omega:
-//                    return "ArialUnicodeMS"
-                default:
-                    return "Monaco"
-                }
-            }
+            var fontName: String { "Brogue" }
             
             var scaleFactor: CGFloat {
                 switch self {
                 case .weapon :
-                    return 1.5
+                    return 1.2
+                    
                 case .scroll, .ring:
                     return 1.2
                 
                 case .foliage, .charm:
                     return 1.1
+                    
+                case .wall:
+                    return 1.1
+                    
+                case .monster:
+                    return 1.4
+                    
                 default:
                     return 1
                 }
@@ -208,6 +208,13 @@ fileprivate extension RogueScene {
                     self = .amulet
                 case U_CIRCLE :
                     self = .ring
+                case U_TILES_WALL_TOP, U_TILES_WALL :
+                    self = .wall
+                case "\u{4017}"..."\u{402a}",
+                    "\u{402e}"..."\u{403e}",
+                    "\u{4052}"..."\u{405a}",
+                    "\u{405c}","\u{4061}" :
+                    self = .monster
                 default:
                     self = .glyph
                 }
@@ -255,8 +262,7 @@ fileprivate extension RogueScene {
     }
     
     func addTexture(glyph: String) -> SKTexture {
-        // added a call to change special characters to UTF-8 replacements
-        textureMap[glyph] = createTextureFromGlyph(glyph: modifyGlyphEncoding(glyph: glyph), size: cellSize)
+        textureMap[glyph] = createTextureFromGlyph(glyph: glyph, size: cellSize)
         return textureMap[glyph]!
     }
 }

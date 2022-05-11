@@ -85,6 +85,7 @@ void plotChar(enum displayGlyph inputChar,
 			  short xLoc, short yLoc,
 			  short foreRed, short foreGreen, short foreBlue,
 			  short backRed, short backGreen, short backBlue) {
+    unsigned int glyphCode;
     
    // NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
@@ -94,7 +95,16 @@ void plotChar(enum displayGlyph inputChar,
     CGFloat foreComponents[] = {(CGFloat)(foreRed * .01), (CGFloat)(foreGreen * .01), (CGFloat)(foreBlue * .01), 1.};
     CGColorRef foreColor = CGColorCreate(_colorSpace, foreComponents);
 
-    [skviewPort setCellWithX:xLoc y:yLoc code:glyphToUnicode(inputChar) bgColor:backColor fgColor:foreColor];
+    
+    if ( (inputChar > 128) &&
+         ((graphicsMode == TILES_GRAPHICS) ||
+         ((graphicsMode == HYBRID_GRAPHICS) && (isEnvironmentGlyph(inputChar)))) ) {
+        glyphCode = (inputChar-130) + 0x4000;
+    } else {
+        glyphCode = glyphToUnicode(inputChar);
+    }
+    
+    [skviewPort setCellWithX:xLoc y:yLoc code:glyphCode bgColor:backColor fgColor:foreColor];
     
     CGColorRelease(backColor);
     CGColorRelease(foreColor);
@@ -557,20 +567,29 @@ boolean modifierHeld(int modifier) {
     return controlKeyIsDown() || shiftKeyIsDown();
 }
 
-boolean hasGraphics = false;
+enum graphicsModes _setGraphicsMode(enum graphicsModes newMode) {
+    // for now, just cycle through the choices, but don't do anything
+    return newMode;
+
+}
+
+
+
+boolean hasGraphics = true;
 boolean serverMode = false;
 boolean keyboardPresent = false;            // no keyboard until key pressed, set in nextKeyOrMouseEvent()
-enum graphicsModes graphicsMode = TEXT_GRAPHICS;
+enum graphicsModes graphicsMode = TEXT_GRAPHICS; // start in TEXT_GRAPHICS till mode switched
+
 struct brogueConsole currentConsole = {
-    rogueMain,
-    pauseForMilliseconds,
-    nextKeyOrMouseEvent,
-    plotChar,
-    NULL,
-    modifierHeld,
+    rogueMain,              // initialize data structure, call rogueMain
+    pauseForMilliseconds,   // pause, return boolean if input event available
+    nextKeyOrMouseEvent,    // block until event available
+    plotChar,               // draw a character at a location, with colors
+    NULL,                   // remap keyboard keys
+    modifierHeld,           // is modifier held? flags, 0 for shift, 1 for Ctrl
     
     // optional
-    NULL,
-    NULL,
-    NULL
+    NULL,                   // *notifyEvent : call-back for certain events
+    NULL,                   // *takeScreenshot
+    _setGraphicsMode         // set graphics mode: TEXT, TILE, HYBRID
 };
