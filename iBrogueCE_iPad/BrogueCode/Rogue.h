@@ -95,7 +95,7 @@ strings, but they are equal (rogue.patchLevel is set to 0).
 #define DELETE_SAVE_FILE_AFTER_LOADING  true
 
 // set to false to disable references to keystrokes (e.g. for a tablet port)
-#define KEYBOARD_LABELS false   // keyboard detection code would be nice, but this is off for iPad
+#define KEYBOARD_LABELS (keyboardPresent)   // keyboard detection -- when a key is pressed, keyboardPresent will be true.
 
 //#define BROGUE_ASSERTS        // introduces several assert()s -- useful to find certain array overruns and other bugs
 //#define AUDIT_RNG             // VERY slow, but sometimes necessary to debug out-of-sync recording errors
@@ -1188,7 +1188,7 @@ enum tileFlags {
 #define PAGE_UP_KEY         63276
 #define PAGE_DOWN_KEY       63277
 #define PRINTSCREEN_KEY     '\054'
-
+#define KEYBOARD_KEY        254
 #define UNKNOWN_KEY         (128+19)
 
 #define min(x, y)       (((x) < (y)) ? (x) : (y))
@@ -2670,6 +2670,7 @@ typedef struct archivedMessage {
 extern boolean serverMode;
 extern boolean hasGraphics;
 extern enum graphicsModes graphicsMode;
+extern boolean keyboardPresent;
 
 #if defined __cplusplus
 extern "C" {

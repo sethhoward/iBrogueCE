@@ -136,6 +136,7 @@ void nextKeyOrMouseEvent(rogueEvent *returnEvent, __unused boolean textInput, bo
             returnEvent->param2 = 0;
             returnEvent->controlKey = 0;//([theEvent modifierFlags] & NSControlKeyMask ? 1 : 0);
             returnEvent->shiftKey = 0;//([theEvent modifierFlags] & NSShiftKeyMask ? 1 : 0);
+            keyboardPresent = brogueViewController.keyboardDetected; // set a global if we've had a key pressed on a physical keyboard.
             break;
         }
         if (brogueViewController.hasTouchEvent) {
@@ -186,11 +187,11 @@ boolean controlKeyIsDown() {
         return 1;
     }
     
-    return 0;
+    return brogueViewController.controlKeyDown;
 }
 
 boolean shiftKeyIsDown() {
-    return NO;
+    return brogueViewController.shiftKeyDown;
 }
 
 //void submitAchievementForCharString(char *achievementKey) {
@@ -558,6 +559,7 @@ boolean modifierHeld(int modifier) {
 
 boolean hasGraphics = false;
 boolean serverMode = false;
+boolean keyboardPresent = false;            // no keyboard until key pressed, set in nextKeyOrMouseEvent()
 enum graphicsModes graphicsMode = TEXT_GRAPHICS;
 struct brogueConsole currentConsole = {
     rogueMain,

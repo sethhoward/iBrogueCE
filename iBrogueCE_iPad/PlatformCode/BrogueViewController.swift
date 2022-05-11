@@ -21,8 +21,10 @@
 //import UIKit
 import SpriteKit
 
-fileprivate let kESC_Key: UInt8 = 27
-fileprivate let kDelKey: UInt8 = 177
+
+
+fileprivate let kESCKey = "\u{1B}"    // 27
+fileprivate let kDelKey = "\u{B1}"    // 177
 fileprivate let kEnterKey = "\n"
 
 private func synchronized<T>(_ lock: Any, _ body: () throws -> T) rethrows -> T {
@@ -63,7 +65,7 @@ fileprivate func getCellCoords(at point: CGPoint) -> CGPoint {
 // TODO: switch to Character
 extension String {
     var ascii: UInt8 {
-        return (unicodeScalars.map { UInt8($0.value) }).first!
+        return (unicodeScalars.map { UInt8(min(255,$0.value)) }).first!
     }
 }
 
@@ -104,12 +106,15 @@ extension BrogueGameEvent {
 // MARK: - BrogueViewController
 
 final class BrogueViewController: UIViewController {
+    fileprivate var keyboardDetectedKeyEvent : Bool  = false
     fileprivate var touchEvents = [UIBrogueTouchEvent]()
     fileprivate var lastTouchLocation = CGPoint()
     @objc fileprivate var directionsViewController: DirectionControlsViewController?
     fileprivate var keyEvents = [UInt8]()
     fileprivate var magnifierTimer: Timer?
     fileprivate var inputRequestString: String?
+    fileprivate var shiftModifierPressed: Bool = false
+    fileprivate var controlModifierPressed: Bool = false
     
     @IBOutlet var skViewPort: SKViewPort!
     @IBOutlet fileprivate weak var magView: SKMagView!
@@ -130,10 +135,13 @@ final class BrogueViewController: UIViewController {
                 //default visibility
                 self.escButton.isHidden = true
                 self.seedButton.isHidden = true
+                self.seedKeyDown = false
                 
                 switch self.lastBrogueGameEvent {
                 case .keyBoardInputRequired:
-                    self.inputTextField.becomeFirstResponder()
+                    if ( !self.keyboardDetectedKeyEvent) {
+                        self.inputTextField.becomeFirstResponder()
+                    }
                 case .showTitle, .openGameFinished:
                     self.inputTextField.resignFirstResponder()
                   //  self.leaderBoardButton.isHidden = false
@@ -144,6 +152,8 @@ final class BrogueViewController: UIViewController {
                     self.seedButton.isHidden = true
                     self.seedKeyDown = false
                 case .messagePlayerHasDied:
+                    self.seedButton.isHidden = true
+                    self.seedKeyDown = false
                     break
                 case .playerHasDiedMessageAcknowledged:
                     break
@@ -219,7 +229,7 @@ final class BrogueViewController: UIViewController {
  
 extension BrogueViewController {
     @IBAction func escButtonPressed(_ sender: Any) {
-        addKeyEvent(event: kESC_Key)
+        addKeyEvent(event: kESCKey.ascii)
         inputTextField.resignFirstResponder()
     }
     
@@ -238,7 +248,7 @@ extension BrogueViewController {
 
 extension BrogueViewController {
     override func motionBegan(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
-        addKeyEvent(event: kESC_Key)
+        addKeyEvent(event: kESCKey.ascii)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -358,6 +368,18 @@ extension BrogueViewController {
     @objc func hasTouchEvent() -> Bool {
         return !touchEvents.isEmpty
     }
+    
+    @objc func keyboardDetected() -> Bool {
+        return self.keyboardDetectedKeyEvent
+    }
+    
+    @objc func shiftKeyDown() -> Bool {
+        return self.shiftModifierPressed
+    }
+    
+    @objc func controlKeyDown() -> Bool {
+        return self.controlModifierPressed
+    }
 }
 
 extension BrogueViewController {
@@ -457,18 +479,23 @@ extension BrogueViewController {
     }
 }
 
+// MARK: - Handle Key input from screen or keyboard
 extension BrogueViewController: UITextFieldDelegate {
     @objc func requestTextInput(for string: String) {
         inputRequestString = string
+        
         DispatchQueue.main.async {
-            self.inputTextField.becomeFirstResponder()
+            self.escButton.isHidden = false
+            if ( !self.keyboardDetectedKeyEvent ) {
+                self.inputTextField.becomeFirstResponder()
+            }
         }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         inputTextField.resignFirstResponder()
         addKeyEvent(event: "\n".ascii)
-        escButton.isHidden = true
+        self.escButton.isHidden = true
         return true
     }
     
@@ -477,13 +504,97 @@ extension BrogueViewController: UITextFieldDelegate {
         escButton.isHidden = false
     }
     
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        escButton.isHidden = true
+        seedButton.isHidden = true
+    }
+    
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if string.isEmpty {
-            addKeyEvent(event: kDelKey)
+            addKeyEvent(event: kDelKey.ascii)
         } else {
             addKeyEvent(event: string.ascii)
         }
         return true
+    }
+    
+    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        // TODO: set a timer or otherwise start a key repitition simulation
+        
+            guard let key = presses.first?.key else { return }
+            shiftModifierPressed = key.modifierFlags.contains([.shift,.alphaShift])
+            controlModifierPressed = key.modifierFlags.contains(.control)
+      }
+    
+    
+    override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        
+        keyboardDetectedKeyEvent = true // once it's true, it stays true, even if the keyboard is no longer used.
+        
+        shiftModifierPressed = false
+        controlModifierPressed = false
+        
+         for press in presses {
+            guard let key = press.key else { continue }
+             
+             // handle special case of Command-v to allow pasting seeds from contests
+             // right now, this could happen anywhere, so careful if you paste while the game
+             // is running.
+             if (key.keyCode == .keyboardV &&
+                 (key.modifierFlags.contains(.command) &&
+                  !key.modifierFlags.contains([.shift,.alternate,.control]))) {
+                 // they entered Command-V, without other modifiers
+                 if (UIPasteboard.general.hasStrings) {
+                     let seedData = UIPasteboard.general.string!
+                     for ch in seedData {
+                         if ch.isASCII && ch.isNumber {
+                             addKeyEvent(event: ch.asciiValue!)
+                         }
+                     }
+                 }
+             }
+            
+            var sendKey: String = ""
+            // this is a physical key, independent of modifiers such as CTRL, OPTION, SHIFT
+            switch key.keyCode {
+                
+            // handle cardinal arrow keys, and keypad equivalents
+            case .keyboardUpArrow, .keypad8 :
+                sendKey = kUP_Key
+            case .keyboardDownArrow, .keypad2 :
+                sendKey = kDOWN_key
+            case .keyboardLeftArrow, .keypad4 :
+                sendKey = kLEFT_key
+            case .keyboardRightArrow, .keypad6 :
+                sendKey = kRIGHT_key
+                
+            // handle remaining keypad arrow equivalents
+            case .keypad7 :
+                sendKey = kUPLEFT_key
+            case .keypad9 :
+                sendKey = kUPRight_key
+            case .keypad1 :
+                sendKey = kDOWNLEFT_key
+            case .keypad3 :
+                sendKey = kDOWNRIGHT_key
+                
+            // handle special keys, ESC, Enter, DEL, Backspace
+            case .keyboardEscape :
+                escButton.isHidden = true
+                sendKey = kESCKey
+            case .keyboardReturnOrEnter :
+                inputTextField.resignFirstResponder()   // whenever Enter, make the onscreen keyboard go away
+                escButton.isHidden = true
+                sendKey = kEnterKey
+            case .keyboardDeleteOrBackspace, .keyboardDeleteForward :
+                sendKey = kDelKey
+            default :
+                sendKey = key.characters        // DON'T ignore modifiers, to allow shifted letters
+            }
+            if !sendKey.isEmpty {
+                addKeyEvent(event: sendKey.ascii)
+            }
+        }
     }
 }
 
@@ -556,7 +667,7 @@ final class SKMagView: SKView {
         let rows = 3 // opposite/flipped
         let cols = 2
         
-        var cells: [[Cell]] = {
+        let cells: [[Cell]] = {
             var cells = [[Cell]]()
             
             for x in -(rows)...rows {

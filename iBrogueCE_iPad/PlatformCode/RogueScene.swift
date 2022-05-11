@@ -75,7 +75,7 @@ extension CGSize {
         let char: NSString = "M" // Good letter to do the base calculations from
         let calcBounds: CGRect = char.boundingRect(with: CGSize(width: 0, height: 0),
                                                    options: [.usesDeviceMetrics, .usesFontLeading],
-                                                   attributes: convertToOptionalNSAttributedStringKeyDictionary([convertFromNSAttributedStringKey(NSAttributedString.Key.font): UIFont(name: "ArialUnicodeMS", size: 120)!]), context: nil)
+                                                   attributes: convertToOptionalNSAttributedStringKeyDictionary([convertFromNSAttributedStringKey(NSAttributedString.Key.font): UIFont(name: "Monaco", size: 120)!]), context: nil)
         return min(self.cellSize.width / calcBounds.width, self.cellSize.height / calcBounds.height)
     }()
     
@@ -142,8 +142,7 @@ fileprivate extension RogueScene {
     }
     
     func createTextureFromGlyph(glyph: String, size: CGSize) -> SKTexture {
-        // Apple Symbols provides U+26AA, for rings, which Arial does not.
-        
+                
         enum GlyphType {
             case letter
             case scroll
@@ -157,8 +156,8 @@ fileprivate extension RogueScene {
             
             var fontName: String {
                 switch self {
-                case .foliage, .ring, .weapon, .omega:
-                    return "ArialUnicodeMS"
+//                case .foliage, .ring, .weapon, .omega:
+//                    return "ArialUnicodeMS"
                 default:
                     return "Monaco"
                 }
@@ -166,8 +165,10 @@ fileprivate extension RogueScene {
             
             var scaleFactor: CGFloat {
                 switch self {
-                case .scroll, .weapon, .ring:
-                    return 1.3
+                case .weapon :
+                    return 1.5
+                case .scroll, .ring:
+                    return 1.2
                 
                 case .foliage, .charm:
                     return 1.1
