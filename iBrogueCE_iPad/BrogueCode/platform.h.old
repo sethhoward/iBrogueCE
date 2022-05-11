@@ -8,7 +8,7 @@
 #define U_ESZETT  0x00df
 #define U_ANKH  0x2640
 #define U_MUSIC_NOTE  0x266A
-#define U_CIRCLE  0x26AA
+#define U_CIRCLE  0x25CB
 #define U_LIGHTNING_BOLT  0x03DF
 #define U_FILLED_CIRCLE  0x25cf
 #define U_NEUTER  0x26b2
