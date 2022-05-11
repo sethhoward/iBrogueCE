@@ -23,6 +23,8 @@
 
 #include "Rogue.h"
 
+#define LAST_INDEX(a) (sizeof(a) / sizeof(fixpt) - 1)
+
 // As of v1.7.5, Brogue does not use floating-point math in any calculations
 // that have an effect on substantive gameplay. The two operations that were
 // annoying to convert were sqrt() (handled by an open source fixed point sqrt
@@ -51,13 +53,7 @@ short staffBladeCount(fixpt enchant)           {return ((int) (enchant * 3 / 2 /
 short staffDiscordDuration(fixpt enchant)      {return ((int) (enchant * 4 / FP_FACTOR));}
 short staffEntrancementDuration(fixpt enchant) {return ((int) (enchant * 3 / FP_FACTOR));}
 int staffProtection(fixpt enchant) {
-    const fixpt POW_STAFF_PROTECTION[] = {
-        // 1.53^x fixed point, with x from 0 to 50 in increments of 1:
-        65536, 100270, 153413, 234722, 359125, 549461, 840675, 1286233, 1967937, 3010944, 4606745, 7048320, 10783931, 16499414, 25244104, 38623479, 59093923,
-        90413702, 138332964, 211649436, 323823637, 495450165, 758038753, 1159799292, 1774492917, 2714974163, 4153910470, 6355483019, 9723889019, 14877550199,
-        22762651805, 34826857262, 53285091611, 81526190166, 124735070954, 190844658559, 291992327596, 446748261222, 683524839670, 1045793004696, 1600063297185,
-        2448096844694, 3745588172382, 5730749903744, 8768047352729, 13415112449676, 20525122048004, 31403436733446, 48047258202173, 73512305049325, 112473826725468};
-    return 50 * POW_STAFF_PROTECTION[enchant / FP_FACTOR - 2] / FP_FACTOR;
+    return 130 * fp_pow(FP_FACTOR * 140 / 100, enchant / FP_FACTOR - 2) / FP_FACTOR;
 }
 int staffPoison(fixpt enchant) {
     const fixpt POW_POISON[] = {
@@ -66,8 +62,9 @@ int staffPoison(fixpt enchant) {
         9580840, 12455093, 16191620, 21049107, 27363839, 35572991, 46244888, 60118355, 78153861, 101600020, 132080026, 171704034, 223215244, 290179818, 377233763,
         490403892, 637525060, 828782579, 1077417352, 1400642558, 1820835326, 2367085924, 3077211701, 4000375211, 5200487775, 6760634107, 8788824340, 11425471642,
         14853113134, 19309047075, 25101761197, 32632289557};
-    enchant = (enchant / FP_FACTOR) - 2;
-    return 5 * POW_POISON[enchant] / FP_FACTOR;
+
+    short idx = clamp(enchant / FP_FACTOR - 2, 0, LAST_INDEX(POW_POISON));
+    return 5 * POW_POISON[idx] / FP_FACTOR;
 }
 
 fixpt ringWisdomMultiplier(fixpt enchant) {
@@ -77,8 +74,8 @@ fixpt ringWisdomMultiplier(fixpt enchant) {
         1174510, 1526863, 1984922, 2580398, 3354518, 4360874, 5669136, 7369877, 9580840, 12455093, 16191620, 21049107, 27363839, 35572991, 46244888, 60118355,
         78153861, 101600020, 132080026, 171704034};
 
-    enchant = min(27, enchant / FP_FACTOR) + 10;
-    return POW_WISDOM[enchant];
+    short idx = clamp(min(27, enchant / FP_FACTOR) + 10, 0, LAST_INDEX(POW_WISDOM));
+    return POW_WISDOM[idx];
 }
 
 short charmHealing(fixpt enchant)              {return ((int) clamp(20 * (enchant) / FP_FACTOR, 0, 100));}
@@ -93,8 +90,8 @@ int charmProtection(fixpt enchant) {
         1310672812, 1769408297, 2388701201, 3224746621, 4353407939, 5877100717, 7934085969, 10711016058, 14459871678, 19520826766, 26353116134, 35576706781,
         48028554155, 64838548109, 87532039948, 118168253930, 159527142806, 215361642788};
 
-    enchant = (enchant / FP_FACTOR) - 1;
-    return 150 * POW_CHARM_PROTECTION[enchant] / FP_FACTOR;
+    short idx = clamp(enchant / FP_FACTOR - 1, 0, LAST_INDEX(POW_CHARM_PROTECTION));
+    return 150 * POW_CHARM_PROTECTION[idx] / FP_FACTOR;
 }
 
 short weaponParalysisDuration(fixpt enchant)   {return (max(2, (int) (2 + ((enchant) / 2 / FP_FACTOR))));}
@@ -109,7 +106,7 @@ short armorAbsorptionMax(fixpt enchant)        {return (max(1, (int) ((enchant) 
 short armorImageCount(fixpt enchant)           {return (clamp((int) ((enchant) / 3 / FP_FACTOR), 1, 5));}
 short reflectionChance(fixpt enchant) {
     const fixpt POW_REFLECT[] = {
-        // 0.85^x fixed point, with x from 1 to 50 in increments of 0.25:
+        // 0.85^x fixed point, with x from 0.25 to 50 in increments of 0.25:
         62926, 60421, 58015, 55705, 53487, 51358, 49313, 47349, 45464, 43654, 41916, 40247, 38644, 37106, 35628, 34210, 32848, 31540, 30284, 29078, 27920,
         26809, 25741, 24716, 23732, 22787, 21880, 21009, 20172, 19369, 18598, 17857, 17146, 16464, 15808, 15179, 14574, 13994, 13437, 12902, 12388, 11895, 11421,
         10967, 10530, 10111, 9708, 9321, 8950, 8594, 8252, 7923, 7608, 7305, 7014, 6735, 6466, 6209, 5962, 5724, 5496, 5278, 5067, 4866, 4672, 4486, 4307, 4136,
@@ -119,8 +116,8 @@ short reflectionChance(fixpt enchant) {
         120, 115, 111, 106, 102, 98, 94, 90, 87, 83, 80, 77, 74, 71, 68, 65, 62, 60, 58, 55, 53, 51, 49, 47, 45, 43, 41, 40, 38, 37, 35, 34, 32, 31, 30, 29, 27,
         26, 25, 24, 23, 22, 21, 21, 20, 19};
 
-    enchant = enchant * 4 / FP_FACTOR;
-    return clamp(100 - (100 * POW_REFLECT[enchant - 1] / FP_FACTOR), 1, 100);
+    short idx = clamp(enchant * 4 / FP_FACTOR - 1, 0, LAST_INDEX(POW_REFLECT));
+    return clamp(100 - (100 * POW_REFLECT[idx] / FP_FACTOR), 1, 100);
 }
 
 long turnsForFullRegenInThousandths(fixpt bonus) {
@@ -128,11 +125,11 @@ long turnsForFullRegenInThousandths(fixpt bonus) {
         // 0.75^x fixed point, with x from -10 to 50 in increments of 1:
         1163770, 872827, 654620, 490965, 368224, 276168, 207126, 155344, 116508, 87381, 65536, 49152, 36864, 27648, 20736, 15552, 11664, 8748, 6561, 4920, 3690,
         2767, 2075, 1556, 1167, 875, 656, 492, 369, 277, 207, 155, 116, 87, 65, 49, 36, 27, 20, 15, 11, 8, 6, 4, 3, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
     // This will max out at full regeneration in about two turns.
     // This is the Syd nerf, after Syd broke the game over his knee with a +18 ring of regeneration.
-    bonus = (bonus / FP_FACTOR) + 10;
-    bonus = clamp(bonus, -10, 50);
-    return (1000 * TURNS_FOR_FULL_REGEN * POW_REGEN[bonus] / FP_FACTOR) + 2000;
+    short idx = clamp(bonus / FP_FACTOR + 10, 0, LAST_INDEX(POW_REGEN));
+    return (1000 * TURNS_FOR_FULL_REGEN * POW_REGEN[idx] / FP_FACTOR) + 2000;
 }
 
 
@@ -155,8 +152,8 @@ fixpt damageFraction(fixpt netEnchant) {
         1132529, 1150501, 1168757, 1187303, 1206144, 1225283, 1244726, 1264478, 1284543, 1304927, 1325634, 1346669, 1368039, 1389747, 1411800, 1434203, 1456961,
         1480081, 1503567, 1527426};
 
-    netEnchant = clamp(netEnchant, -20 * FP_FACTOR, 50 * FP_FACTOR);
-    return POW_DAMAGE_FRACTION[((netEnchant + (20 * FP_FACTOR)) * 4) / FP_FACTOR];
+    short idx = clamp(netEnchant * 4 / FP_FACTOR + 80, 0, LAST_INDEX(POW_DAMAGE_FRACTION));
+    return POW_DAMAGE_FRACTION[idx];
 }
 
 fixpt accuracyFraction(fixpt netEnchant) {
@@ -178,14 +175,13 @@ fixpt accuracyFraction(fixpt netEnchant) {
         1132529, 1150501, 1168757, 1187303, 1206144, 1225283, 1244726, 1264478, 1284543, 1304927, 1325634, 1346669, 1368039, 1389747, 1411800, 1434203, 1456961,
         1480081, 1503567, 1527426};
 
-    netEnchant = clamp(netEnchant, -20 * FP_FACTOR, 50 * FP_FACTOR);
-    return POW_ACCURACY_FRACTION[((netEnchant + (20 * FP_FACTOR)) * 4) / FP_FACTOR];
+    short idx = clamp(netEnchant * 4 / FP_FACTOR + 80, 0, LAST_INDEX(POW_ACCURACY_FRACTION));
+    return POW_ACCURACY_FRACTION[idx];
 }
 
 fixpt defenseFraction(fixpt netDefense) {
-    short tableIndex;
     const fixpt POW_DEFENSE_FRACTION[] = {
-        // 0.9678^x fixed point, with x representing a change in 0.25 armor points (as displayed), ranging from -20 to 50.
+        // 0.877347265^x fixed point, with x representing a change in 0.25 armor points (as displayed), ranging from -20 to 50.
         897530, 868644, 840688, 813632, 787446, 762103, 737575, 713837, 690863, 668629, 647110, 626283, 606127, 586619, 567740, 549468,
         531784, 514669, 498105, 482074, 466559, 451543, 437011, 422946, 409334, 396160, 383410, 371071, 359128, 347570, 336384, 325558,
         315080, 304940, 295125, 285627, 276435, 267538, 258927, 250594, 242529, 234724, 227169, 219858, 212782, 205934, 199306, 192892,
@@ -201,17 +197,15 @@ fixpt defenseFraction(fixpt netDefense) {
         469, 453, 439, 425, 411, 398, 385, 373, 361, 349, 338, 327, 316, 306, 296, 287, 277, 268, 260, 251, 243, 235, 228, 221, 213, 207,
         200, 193, 187, 181, 175, 170, 164, 159, 154, 149, 144, 139, 135, 130, 126, 122, 118, 114, 111, 107, 104, 100, 97, 94};
 
-    netDefense = clamp((netDefense * FP_FACTOR) / 10, -20 * FP_FACTOR, 50 * FP_FACTOR);
-    tableIndex = ((netDefense + (20 * FP_FACTOR)) * 4) / FP_FACTOR;
-    tableIndex = clamp(tableIndex, 0, (20+50)*4);
-    return POW_DEFENSE_FRACTION[tableIndex];
+    short idx = clamp(netDefense * 4 / 10 / FP_FACTOR + 80, 0, LAST_INDEX(POW_DEFENSE_FRACTION));
+    return POW_DEFENSE_FRACTION[idx];
 }
 
 short charmEffectDuration(short charmKind, short enchant) {
     const fixpt POW_0_CHARM_INCREMENT[] = { // 1.0
         65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536,
         65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536,
-        65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536};
+        65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536};
     const fixpt POW_120_CHARM_INCREMENT[] = { // 1.20^x fixed point, with x from 1 to 50 in increments of 1:
         78643, 94371, 113246, 135895, 163074, 195689, 234827, 281792, 338151, 405781, 486937, 584325, 701190, 841428, 1009714, 1211657,
         1453988, 1744786, 2093744, 2512492, 3014991, 3617989, 4341587, 5209905, 6251886, 7502263, 9002716, 10803259, 12963911, 15556694,
@@ -250,23 +244,12 @@ short charmEffectDuration(short charmKind, short enchant) {
         POW_0_CHARM_INCREMENT,      // Recharging
         POW_0_CHARM_INCREMENT,      // Negation
     };
-    enchant = clamp(enchant, 1, 50) - 1;
-    return duration[charmKind] * increment[charmKind][enchant] / FP_FACTOR;
+
+    short idx = clamp(enchant - 1, 0, LAST_INDEX(POW_125_CHARM_INCREMENT));
+    return duration[charmKind] * increment[charmKind][idx] / FP_FACTOR;
 }
 
 short charmRechargeDelay(short charmKind, short enchant) {
-    const fixpt POW_30_CHARM_DECREMENT[] = { // 0.7^x fixed point, with x from 1 to 50 in increments of 1:
-        45875, 32112, 22478, 15735, 11014, 7710, 5397, 3778, 2644, 1851, 1295, 907, 634, 444, 311, 217, 152, 106, 74, 52, 36, 25,
-        17, 12, 8, 6, 4, 3, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    const fixpt POW_35_CHARM_DECREMENT[] = { // 0.65^x fixed point, with x from 1 to 50 in increments of 1:
-        42598, 27688, 17997, 11698, 7604, 4942, 3212, 2088, 1357, 882, 573, 372, 242, 157, 102, 66, 43, 28, 18, 11, 7, 5, 3, 2, 1,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    const fixpt POW_40_CHARM_DECREMENT[] = { // 0.60^x fixed point, with x from 1 to 50 in increments of 1:
-        39321, 23592, 14155, 8493, 5096, 3057, 1834, 1100, 660, 396, 237, 142, 85, 51, 30, 18, 11, 6, 3, 2, 1, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    const fixpt POW_45_CHARM_DECREMENT[] = { // 0.55^x fixed point, with x from 1 to 50 in increments of 1:
-        36044, 19824, 10903, 5996, 3298, 1814, 997, 548, 301, 165, 91, 50, 27, 15, 8, 4, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     const short duration[NUMBER_CHARM_KINDS] = {
         2500,   // Health
         1000,   // Protection
@@ -277,27 +260,28 @@ short charmRechargeDelay(short charmKind, short enchant) {
         800,    // Levitation
         2500,   // Shattering
         700,    // Guardian
-        1000,   // Teleportation
+        920,    // Teleportation
         10000,  // Recharging
         2500,   // Negation
     };
-    const fixpt *increment[NUMBER_CHARM_KINDS] = {
-        POW_45_CHARM_DECREMENT, // Health
-        POW_40_CHARM_DECREMENT, // Protection
-        POW_35_CHARM_DECREMENT, // Haste
-        POW_40_CHARM_DECREMENT, // Fire immunity
-        POW_35_CHARM_DECREMENT, // Invisibility
-        POW_35_CHARM_DECREMENT, // Telepathy
-        POW_35_CHARM_DECREMENT, // Levitation
-        POW_40_CHARM_DECREMENT, // Shattering
-        POW_30_CHARM_DECREMENT, // Guardian
-        POW_45_CHARM_DECREMENT, // Teleportation
-        POW_45_CHARM_DECREMENT, // Recharging
-        POW_40_CHARM_DECREMENT, // Negation
+    const fixpt base[NUMBER_CHARM_KINDS] = {
+        FP_FACTOR * 55 / 100, // Health
+        FP_FACTOR * 60 / 100, // Protection
+        FP_FACTOR * 65 / 100, // Haste
+        FP_FACTOR * 60 / 100, // Fire immunity
+        FP_FACTOR * 65 / 100, // Invisibility
+        FP_FACTOR * 65 / 100, // Telepathy
+        FP_FACTOR * 65 / 100, // Levitation
+        FP_FACTOR * 60 / 100, // Shattering
+        FP_FACTOR * 70 / 100, // Guardian
+        FP_FACTOR * 60 / 100, // Teleportation
+        FP_FACTOR * 55 / 100, // Recharging
+        FP_FACTOR * 60 / 100, // Negation
     };
-    enchant = clamp(enchant, 1, 50) - 1;
-    short delay = charmEffectDuration(charmKind, enchant + 1)
-    + (duration[charmKind] * increment[charmKind][enchant] / FP_FACTOR);
+
+    enchant = clamp(enchant, 1, 50);
+    short delay = charmEffectDuration(charmKind, enchant)
+        + (duration[charmKind] * fp_pow(base[charmKind], enchant) / FP_FACTOR);
     return max(1, delay);
 }
 
@@ -376,6 +360,7 @@ short runicWeaponChance(item *theItem, boolean customEnchantLevel, fixpt enchant
         0,      // W_SLAYING
         0,      // W_MERCY
         0};     // W_PLENTY
+
     fixpt modifier;
     short runicType = theItem->enchant2;
     short chance, adjustedBaseDamage, tableIndex;
@@ -407,7 +392,7 @@ short runicWeaponChance(item *theItem, boolean customEnchantLevel, fixpt enchant
         chance = 0;
     } else {
         tableIndex = enchantLevel * modifier * 4 / FP_FACTOR / FP_FACTOR;
-        tableIndex = clamp(tableIndex, 0, 50 * 4);
+        tableIndex = clamp(tableIndex, 0, LAST_INDEX(POW_16_RUNIC_DECREMENT));
         chance = 100 - (short) (100LL * effectChances[runicType][tableIndex] / FP_FACTOR); // good runic
     }
 

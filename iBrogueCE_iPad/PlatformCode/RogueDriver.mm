@@ -26,10 +26,14 @@
 #include <unistd.h>
 #include "CoreFoundation/CoreFoundation.h"
 #import "RogueDriver.h"
-#include "IncludeGlobals.h"
 #include "Rogue.h"
 //#import "GameCenterManager.h"
 #import <QuartzCore/QuartzCore.h>
+
+extern "C" {
+    #include "IncludeGlobals.h"
+    #include "platform.h"
+}
 
 #define kRateScore 3000
 
@@ -77,7 +81,7 @@ static BrogueViewController *brogueViewController;
 //  plotChar: plots inputChar at (xLoc, yLoc) with specified background and foreground colors.
 //  Color components are given in ints from 0 to 100.
 
-void plotChar(uchar inputChar,
+void plotChar(enum displayGlyph inputChar,
 			  short xLoc, short yLoc,
 			  short foreRed, short foreGreen, short foreBlue,
 			  short backRed, short backGreen, short backBlue) {
@@ -90,7 +94,7 @@ void plotChar(uchar inputChar,
     CGFloat foreComponents[] = {(CGFloat)(foreRed * .01), (CGFloat)(foreGreen * .01), (CGFloat)(foreBlue * .01), 1.};
     CGColorRef foreColor = CGColorCreate(_colorSpace, foreComponents);
 
-    [skviewPort setCellWithX:xLoc y:yLoc code:inputChar bgColor:backColor fgColor:foreColor];
+    [skviewPort setCellWithX:xLoc y:yLoc code:glyphToUnicode(inputChar) bgColor:backColor fgColor:foreColor];
     
     CGColorRelease(backColor);
     CGColorRelease(foreColor);
@@ -423,6 +427,12 @@ void initializeBrogueSaveLocation() {
     [manager changeCurrentDirectoryPath:documentsPath];
 }
 
+void rogueMain() {
+	previousGameSeed = 0;
+	initializeBrogueSaveLocation();
+	mainBrogueJunction();
+}
+
 #define ADD_FAKE_PADDING_FILES 0
 
 // Returns a malloc'ed fileEntry array, and puts the file count into *fileCount.
@@ -540,3 +550,25 @@ fileEntry *listFiles(short *fileCount, char **dynamicMemoryBuffer) {
 	*fileCount = count + ADD_FAKE_PADDING_FILES;
 	return fileList;
 }
+
+
+boolean modifierHeld(int modifier) {
+    return controlKeyIsDown() || shiftKeyIsDown();
+}
+
+boolean hasGraphics = false;
+boolean serverMode = false;
+enum graphicsModes graphicsMode = TEXT_GRAPHICS;
+struct brogueConsole currentConsole = {
+    rogueMain,
+    pauseForMilliseconds,
+    nextKeyOrMouseEvent,
+    plotChar,
+    NULL,
+    modifierHeld,
+    
+    // optional
+    NULL,
+    NULL,
+    NULL
+};
