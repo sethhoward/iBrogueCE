@@ -440,12 +440,12 @@ boolean stringsExactlyMatch(const char *string1, const char *string2) {
 int fileEntryCompareDates(const void *a, const void *b) {
     fileEntry *f1 = (fileEntry *)a;
     fileEntry *f2 = (fileEntry *)b;
-    time_t t1,t2;
+    time_t t1, t2;
     double diff;
 
     t1 = mktime(&f1->date);
     t2 = mktime(&f2->date);
-    diff = difftime(t2,t1);
+    diff = difftime(t2, t1);
 
     //char date_f1[11];
     //char date_f2[11];
@@ -468,7 +468,7 @@ boolean dialogChooseFile(char *path, const char *suffix, const char *prompt) {
     cellDisplayBuffer dbuf[COLS][ROWS], rbuf[COLS][ROWS];
     color *dialogColor = &interfaceBoxColor;
     char *membuf;
-    char fileDate [8+1] = {};
+    char fileDate [11];
 
     suffixLength = strlen(suffix);
     files = listFiles(&count, &membuf);
