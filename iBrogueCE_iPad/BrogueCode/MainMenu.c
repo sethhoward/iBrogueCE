@@ -266,7 +266,7 @@ void titleMenu() {
     const color *colors[COLS][(ROWS + MENU_FLAME_ROW_PADDING)];
     color colorStorage[COLS];
     unsigned char mask[COLS][ROWS];
-    boolean controlKeyWasDown = false;
+//    boolean controlKeyWasDown = false;
 
     short i, b, x, y, button;
     buttonState state;
@@ -275,8 +275,9 @@ void titleMenu() {
     char goldColorEscape[10] = "";
     char newGameText[100] = "", customNewGameText[100] = "";
     rogueEvent theEvent;
-    enum NGCommands buttonCommands[6] = {NG_NEW_GAME, NG_OPEN_GAME, NG_VIEW_RECORDING, NG_HIGH_SCORES, NG_QUIT};
-
+    
+    //BT: remove Quit, add SEED
+    enum NGCommands buttonCommands[6] = {NG_NEW_GAME, NG_NEW_GAME_WITH_SEED, NG_OPEN_GAME, NG_VIEW_RECORDING, NG_HIGH_SCORES};
     cellDisplayBuffer shadowBuf[COLS][ROWS];
 
     // Initialize the RNG so the flames aren't always the same.
@@ -299,6 +300,12 @@ void titleMenu() {
     strcpy(buttons[b].text, newGameText);
     buttons[b].hotkey[0] = 'n';
     buttons[b].hotkey[1] = 'N';
+    b++;
+    
+    initializeButton(&(buttons[b]));
+    sprintf(buttons[b].text, "   New %sS%seeded Game   ", goldColorEscape, whiteColorEscape);
+    buttons[b].hotkey[0] = 's';
+    buttons[b].hotkey[1] = 'S';
     b++;
 
     initializeButton(&(buttons[b]));
@@ -349,18 +356,18 @@ void titleMenu() {
         if (isApplicationActive()) {
             // Revert the display.
             overlayDisplayBuffer(state.rbuf, NULL);
-
-            if (!controlKeyWasDown && controlKeyIsDown()) {
-                strcpy(state.buttons[0].text, customNewGameText);
-                drawButtonsInState(&state);
-                buttonCommands[0] = NG_NEW_GAME_WITH_SEED;
-                controlKeyWasDown = true;
-            } else if (controlKeyWasDown && !controlKeyIsDown()) {
-                strcpy(state.buttons[0].text, newGameText);
-                drawButtonsInState(&state);
-                buttonCommands[0] = NG_NEW_GAME;
-                controlKeyWasDown = false;
-            }
+//
+//            if (!controlKeyWasDown && controlKeyIsDown()) {
+//                strcpy(state.buttons[0].text, customNewGameText);
+//                drawButtonsInState(&state);
+//                buttonCommands[0] = NG_NEW_GAME_WITH_SEED;
+//                controlKeyWasDown = true;
+//            } else if (controlKeyWasDown && !controlKeyIsDown()) {
+//                strcpy(state.buttons[0].text, newGameText);
+//                drawButtonsInState(&state);
+//                buttonCommands[0] = NG_NEW_GAME;
+//                controlKeyWasDown = false;
+//            }
 
             // Update the display.
             updateMenuFlames(colors, colorSources, flames);
@@ -716,6 +723,7 @@ void mainBrogueJunction() {
                 }
                 // Seth: Added
                 setBrogueGameEvent(CBrogueGameEventStartNewGame);
+
                 rogue.nextGame = NG_NOTHING;
                 initializeRogue(rogue.nextGameSeed);
                 startLevel(rogue.depthLevel, 1); // descending into level 1
@@ -731,6 +739,10 @@ void mainBrogueJunction() {
                 // Seth: Added
                 setBrogueGameEvent(CBrogueGameEventBeginOpenGame);
                 path[0] = '\0';
+                
+                // Seth: Added BT
+                setBrogueGameEvent(CBrogueGameEventBeginOpenGame);
+                
                 if (rogue.nextGamePath[0]) {
                     strcpy(path, rogue.nextGamePath);
                     rogue.nextGamePath[0] = '\0';
@@ -743,6 +755,7 @@ void mainBrogueJunction() {
                     if (loadSavedGame()) {
                         // Seth: Added
                         setBrogueGameEvent(CBrogueGameEventOpenGame);
+                        
                         mainInputLoop();
                     }
                     freeEverything();
@@ -762,6 +775,7 @@ void mainBrogueJunction() {
                 rogue.nextGame = NG_NOTHING;
                 // Seth: Added
                 setBrogueGameEvent(CBrogueGameEventBeginOpenGame);
+                
                 path[0] = '\0';
                 if (rogue.nextGamePath[0]) {
                     strcpy(path, rogue.nextGamePath);
@@ -818,6 +832,7 @@ void mainBrogueJunction() {
                 rogue.nextGame = NG_NOTHING;
                 // Seth: Added
                 setBrogueGameEvent(CBrogueGameEventShowHighScores);
+                
                 printHighScores(false);
                 break;
             case NG_QUIT:

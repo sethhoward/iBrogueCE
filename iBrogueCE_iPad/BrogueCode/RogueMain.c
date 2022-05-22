@@ -106,7 +106,7 @@ void benchmark() {
     for (k=0; k<500; k++) {
         for (i=0; i<COLS; i++) {
             for (j=0; j<ROWS; j++) {
-                theChar = (displayGlyph)rand_range('!', '~');
+                theChar = rand_range('!', '~');
                 plotCharWithColor(theChar, i, j, &sparklesauce, &sparklesauce);
             }
         }
@@ -237,7 +237,7 @@ void initializeRogue(uint64_t seed) {
     zeroOutGrid(displayDetail);
 
     for (i=0; i<NUMBER_MONSTER_KINDS; i++) {
-        monsterCatalog[i].monsterID = (monsterTypes)i;
+        monsterCatalog[i].monsterID = i;
     }
 
     shuffleFlavors();
@@ -1048,8 +1048,7 @@ void gameOver(char *killedBy, boolean useCustomPhrasing) {
         sprintf(buf, "Killed by a%s %s on depth %i", (isVowelish(killedBy) ? "n" : ""), killedBy,
                 rogue.depthLevel);
     }
-    // Seth:
-    theEntry.seed = rogue.seed;
+
     theEntry.score = rogue.gold;
     if (rogue.easyMode) {
         theEntry.score /= 10;
@@ -1272,7 +1271,7 @@ void enableEasyMode() {
     if (confirm("Succumb to demonic temptation (i.e. enable Easy Mode)?", false)) {
         recordKeystroke(EASY_MODE_KEY, false, true);
         message("An ancient and terrible evil burrows into your willing flesh!", REQUIRE_ACKNOWLEDGMENT);
-        player.info.displayChar = (displayGlyph)'&';
+        player.info.displayChar = '&';
         rogue.easyMode = true;
         refreshDungeonCell(player.loc.x, player.loc.y);
         refreshSideBar(-1, -1, false);
