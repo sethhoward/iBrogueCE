@@ -331,9 +331,9 @@ short actionMenu(short x, boolean playingBack) {
         }
 
         if (KEYBOARD_LABELS) {
-            sprintf(buttons[buttonCount].text, "  %s\\: %s[%s] Hide color effects  ",   yellowColorEscape, whiteColorEscape, rogue.trueColorMode ? "X" : " ");
+            sprintf(buttons[buttonCount].text, "  %s\\: %s[%s] Hide color effects  ",   yellowColorEscape, whiteColorEscape, rogue.trueColorMode ? " " : "X");
         } else {
-            sprintf(buttons[buttonCount].text, "  [%s] Hide color effects  ",   rogue.trueColorMode ? "X" : " ");
+            sprintf(buttons[buttonCount].text, "  [%s] Hide color effects  ",   rogue.trueColorMode ? " " : "X");
         }
         buttons[buttonCount].hotkey[0] = TRUE_COLORS_KEY;
         takeActionOurselves[buttonCount] = true;

@@ -129,6 +129,11 @@ void welcome() {
         messageWithColor("Press <?> for help at any time.", &backgroundMessageColor, NO_FLAG);
     }
     flavorMessage("The doors to the dungeon slam shut behind you.");
+    
+    //BT: since we're not starting the iPad app in main.c, initialize some things here
+    rogue.wizard = false;
+    rogue.trueColorMode = true;
+    rogue.displayStealthRangeMode = false;
 }
 
 // Seed is used as the dungeon seed unless it's zero, in which case generate a new one.
