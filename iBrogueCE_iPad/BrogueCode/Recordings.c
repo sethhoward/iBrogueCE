@@ -216,6 +216,10 @@ void writeHeaderInfo(char *path) {
 }
 
 void flushBufferToFile() {
+    if (currentFilePath[0] == '\0') {
+        return;
+    }
+
     short i;
     FILE *recordFile;
 
@@ -430,7 +434,7 @@ void displayAnnotation() {
         if (!rogue.playbackFastForward) {
             refreshSideBar(-1, -1, false);
 
-            printTextBox(rogue.nextAnnotation, player.xLoc, 0, 0, &black, &white, rbuf, NULL, 0);
+            printTextBox(rogue.nextAnnotation, player.loc.x, 0, 0, &black, &white, rbuf, NULL, 0);
 
             rogue.playbackMode = false;
             displayMoreSign();
@@ -447,17 +451,16 @@ void displayAnnotation() {
 // according to the global pattern. The Major and Minor versions must match ours.
 // Returns true if successful.
 static boolean getPatchVersion(char *versionString, unsigned short *patchVersion) {
-    if (strcmp(versionString, "CE 1.9") == 0) {
-        // this older version string didn't show the patch number
-        *patchVersion = 0;
-        return BROGUE_MAJOR == 1 && BROGUE_MINOR == 9;
-    }
     return sscanf(versionString, BROGUE_PATCH_VERSION_PATTERN, patchVersion) == 1;
 }
 
 // creates a game recording file, or if in playback mode,
 // initializes based on and starts reading from the recording file
 void initRecording() {
+    if (currentFilePath[0] == '\0') {
+        return;
+    }
+
     short i;
     boolean wizardMode;
     unsigned short recPatch;
@@ -667,7 +670,7 @@ static void resetPlayback() {
     boolean omniscient, stealth, trueColors;
 
     omniscient = rogue.playbackOmniscience;
-    stealth = rogue.displayAggroRangeMode;
+    stealth = rogue.displayStealthRangeMode;
     trueColors = rogue.trueColorMode;
 
     freeEverything();
@@ -676,7 +679,7 @@ static void resetPlayback() {
     initializeRogue(0); // Seed argument is ignored because we're in playback.
 
     rogue.playbackOmniscience = omniscient;
-    rogue.displayAggroRangeMode = stealth;
+    rogue.displayStealthRangeMode = stealth;
     rogue.trueColorMode = trueColors;
 
     rogue.playbackFastForward = false;
@@ -1004,11 +1007,11 @@ boolean executePlaybackInput(rogueEvent *recordingInput) {
                                      &teal, 0);
                 }
                 return true;
-            case AGGRO_DISPLAY_KEY:
-                rogue.displayAggroRangeMode = !rogue.displayAggroRangeMode;
+            case STEALTH_RANGE_KEY:
+                rogue.displayStealthRangeMode = !rogue.displayStealthRangeMode;
                 displayLevel();
                 refreshSideBar(-1, -1, false);
-                if (rogue.displayAggroRangeMode) {
+                if (rogue.displayStealthRangeMode) {
                     messageWithColor(KEYBOARD_LABELS ? "Stealth range displayed. Press ']' again to hide." : "Stealth range displayed.",
                                      &teal, 0);
                 } else {
@@ -1167,7 +1170,7 @@ void saveGameNoPrompt() {
 }
 
 void saveGame() {
-    char filePathWithoutSuffix[BROGUE_FILENAME_MAX], filePath[BROGUE_FILENAME_MAX], defaultPath[BROGUE_FILENAME_MAX];
+    char filePathWithoutSuffix[BROGUE_FILENAME_MAX - sizeof(GAME_SUFFIX)], filePath[BROGUE_FILENAME_MAX], defaultPath[BROGUE_FILENAME_MAX];
     boolean askAgain;
 
     if (rogue.playbackMode) {

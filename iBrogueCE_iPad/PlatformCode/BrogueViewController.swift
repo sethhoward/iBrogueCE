@@ -44,7 +44,7 @@ extension UIScreen {
         var offset: CGFloat =  0.0
         if #available(iOS 11.0, *) {
             if Thread.isMainThread {
-                offset = UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0
+                offset = UIApplication.shared.windows.first(where: \.isKeyWindow)?.safeAreaInsets.bottom ?? 0
                 kOffset = offset
             } else {
                 offset = kOffset
@@ -125,41 +125,31 @@ final class BrogueViewController: UIViewController {
     }
     @IBOutlet fileprivate weak var inputTextField: UITextField!
   //  @IBOutlet fileprivate weak var leaderBoardButton: UIButton!
-    @IBOutlet fileprivate weak var seedButton: UIButton!
+ //   @IBOutlet fileprivate weak var seedButton: UIButton!
    
     @IBOutlet weak var dContainerView: UIView!
-    @objc var seedKeyDown = false
+//    @objc var seedKeyDown = false
     @objc var lastBrogueGameEvent: BrogueGameEvent = .showTitle {
         didSet {
             DispatchQueue.main.async {
-                //default visibility
+                //default visibility for ESC button
                 self.escButton.isHidden = true
-                self.seedButton.isHidden = true
-                self.seedKeyDown = false
-                
+//
                 switch self.lastBrogueGameEvent {
                 case .keyBoardInputRequired:
                     if ( !self.keyboardDetectedKeyEvent) {
+                        // only display a screen keyboard if we haven't seen any key presses
                         self.inputTextField.becomeFirstResponder()
                     }
                 case .showTitle, .openGameFinished:
                     self.inputTextField.resignFirstResponder()
-                  //  self.leaderBoardButton.isHidden = false
-                    self.seedButton.isHidden = false
                     self.escButton.isHidden = true
                 case .startNewGame, .openGame, .beginOpenGame:
-                 //   self.leaderBoardButton.isHidden = true
-                    self.seedButton.isHidden = true
-                    self.seedKeyDown = false
-                case .messagePlayerHasDied:
-                    self.seedButton.isHidden = true
-                    self.seedKeyDown = false
-                    break
-                case .playerHasDiedMessageAcknowledged:
-                    break
-                default: ()
+                    self.escButton.isHidden = true
+                default: self.escButton.isHidden = true
+                    
                 }
-                
+
                 // Hide/Show the directions.
                 switch self.lastBrogueGameEvent {
                 case .waitingForConfirmation, .actionMenuOpen, .openedInventory, .showTitle, .openGameFinished, .playRecording, .showHighScores, .playBackPanic, .messagePlayerHasDied, .playerHasDiedMessageAcknowledged, .keyBoardInputRequired, .beginOpenGame:
@@ -233,17 +223,17 @@ extension BrogueViewController {
         inputTextField.resignFirstResponder()
     }
     
-    @IBAction func seedButtonPressed(_ sender: Any) {
-        seedKeyDown = !seedKeyDown
-        
-        if seedKeyDown {
-            let image = UIImage(named: "brogue_sproutedseed.png")
-            seedButton.setImage(image, for: .normal)
-        } else {
-            let image = UIImage(named: "brogue_seed.png")
-            seedButton.setImage(image, for: .normal)
-        }
-    }
+//    @IBAction func seedButtonPressed(_ sender: Any) {
+//        seedKeyDown = !seedKeyDown
+//
+//        if seedKeyDown {
+//            let image = UIImage(named: "brogue_sproutedseed.png")
+//            seedButton.setImage(image, for: .normal)
+//        } else {
+//            let image = UIImage(named: "brogue_seed.png")
+//            seedButton.setImage(image, for: .normal)
+//        }
+//    }
 }
 
 extension BrogueViewController {
@@ -506,7 +496,7 @@ extension BrogueViewController: UITextFieldDelegate {
     
     func textFieldDidEndEditing(_ textField: UITextField) {
         escButton.isHidden = true
-        seedButton.isHidden = true
+//        seedButton.isHidden = true
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {

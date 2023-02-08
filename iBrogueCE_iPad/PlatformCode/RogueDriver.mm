@@ -193,10 +193,6 @@ void setBrogueGameEvent(CBrogueGameEvent brogueGameEvent) {
 }
 
 boolean _controlKeyIsDown() {
-    if (brogueViewController.seedKeyDown) {
-        return 1;
-    }
-    
     return brogueViewController.controlKeyDown;
 }
 

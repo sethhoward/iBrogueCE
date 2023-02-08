@@ -39,15 +39,14 @@ commands.
 
 The first screen shows an initial menu.  
 
+
 ### Seeds
 
-Note the little "seed" in the bottom left. If you touch that (or hold Control on
-a keyboard), the "New Game" entry adds a "(custom game)" option, which will
-allow you to enter a specific numeric seed. This seed guarantees that the
-dungeon you enter is exactly the same whenever that same number is used. This
-allows competitions where every player enters the same dungeon layout, and sees
+If you choose to start a New Seeded Game, you will be prompted to enter a number, used as a "seed" to create the dungeon and its contents.
+Each numeric seed guarantees the dungeon will be the same as someone else using the same seed.
+This allows competitions where every player enters the same dungeon layout, and sees
 how far they can get before dying. Check out the Reddit forum (in Resources) for contest information.
-![seed](https://user-images.githubusercontent.com/17453830/163439580-7d104329-46c9-48df-9cd5-3ab5d35cf1d6.png)
+
 
 ### In-game movement and screen touches
 <img src="https://user-images.githubusercontent.com/17453830/163440389-ae72701e-014e-4cbd-aeda-fec4db42ac0e.png" alt="compass rose" width=220 align=left>
