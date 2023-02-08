@@ -41,7 +41,7 @@
 
 // Brogue version number
 #define BROGUE_MAJOR 1
-#define BROGUE_MINOR 11
+#define BROGUE_MINOR 12
 #define BROGUE_PATCH 0
 
 // Expanding a macro as a string constant requires two levels of macros
@@ -84,6 +84,7 @@ strings, but they are equal (rogue.patchLevel is set to 0).
 #define D_SAFETY_VISION                 (rogue.wizard && 0)
 #define D_SCENT_VISION                  (rogue.wizard && 0)
 #define D_DISABLE_BACKGROUND_COLORS     (rogue.wizard && 0)
+#define D_OMNISCENCE                    (rogue.wizard && 0)
 
 #define D_INSPECT_LEVELGEN              (rogue.wizard && 0)
 #define D_INSPECT_MACHINES              (rogue.wizard && 0)
@@ -172,6 +173,12 @@ typedef struct pos {
 
 #define AMULET_LEVEL            26          // how deep before the amulet appears
 #define DEEPEST_LEVEL           40          // how deep the universe goes
+#define DEPTH_ACCELERATOR       1           // factor for how fast depth-dependent features scale compared to usual 26-level dungeon
+
+#define MUTATIONS_OCCUR_ABOVE_LEVEL 10      // how deep before mutations can occur
+
+#define MINIMUM_LAVA_LEVEL      4           // how deep before lava can be generated
+#define MINIMUM_BRIMSTONE_LEVEL 17          // how deep before brimstone can be generated
 
 #define MACHINES_FACTOR         FP_FACTOR   // use this to adjust machine frequency
 
@@ -183,6 +190,12 @@ typedef struct pos {
 
 #define FALL_DAMAGE_MIN         8
 #define FALL_DAMAGE_MAX         10
+
+#define PLAYER_TRANSFERENCE_RATIO 20        // player transference heal is (enchant / PLAYER_TRANSFERENCE_RATIO)
+
+#define ON_HIT_HALLUCINATE_DURATION 20      // duration of on-hit hallucination effect on player
+#define ON_HIT_WEAKEN_DURATION  300         // duration of on-hit weaken effect
+#define ON_HIT_MERCY_HEAL_PERCENT 50        // percentage of damage healed on-hit by mercy weapon effect
 
 #define INPUT_RECORD_BUFFER     1000        // how many bytes of input data to keep in memory before saving it to disk
 #define DEFAULT_PLAYBACK_DELAY  50
@@ -744,6 +757,7 @@ enum itemCategory {
     HAS_INTRINSIC_POLARITY = (POTION | SCROLL | RING | WAND | STAFF),
 
     CAN_BE_DETECTED     = (WEAPON | ARMOR | POTION | SCROLL | RING | CHARM | WAND | STAFF | AMULET),
+    CAN_BE_ENCHANTED    = (WEAPON | ARMOR | RING | CHARM | WAND | STAFF),
     PRENAMED_CATEGORY   = (FOOD | GOLD | AMULET | GEM | KEY),
     NEVER_IDENTIFIABLE  = (FOOD | CHARM | GOLD | AMULET | GEM | KEY),
     CAN_BE_SWAPPED      = (WEAPON | ARMOR | STAFF | CHARM | RING),
@@ -1171,6 +1185,7 @@ enum tileFlags {
 #define MESSAGE_ARCHIVE_KEY 'M'
 #define BROGUE_HELP_KEY     '?'
 #define DISCOVERIES_KEY     'D'
+#define CREATE_ITEM_MONSTER_KEY 'C'
 #define EXPLORE_KEY         'x'
 #define AUTOPLAY_KEY        'A'
 #define SEED_KEY            '~'
@@ -2965,6 +2980,7 @@ extern "C" {
                        unsigned long forbiddenFlags, boolean cautiousOnWalls);
 
     creature *generateMonster(short monsterID, boolean itemPossible, boolean mutationPossible);
+    void mutateMonster(creature *monst, short mutationIndex);
     short chooseMonster(short forLevel);
     creature *spawnHorde(short hordeID, short x, short y, unsigned long forbiddenFlags, unsigned long requiredFlags);
     void fadeInMonster(creature *monst);
@@ -3032,6 +3048,8 @@ extern "C" {
     boolean canDirectlySeeMonster(creature *monst);
     void monsterName(char *buf, creature *monst, boolean includeArticle);
     boolean monsterIsInClass(const creature *monst, const short monsterClass);
+    boolean chooseTarget(pos *returnLoc, short maxDistance, boolean stopAtTarget, boolean autoTarget,
+                         boolean targetAllies, const bolt *theBolt, const color *trajectoryColor);
     fixpt strengthModifier(item *theItem);
     fixpt netEnchant(item *theItem);
     short hitProbability(creature *attacker, creature *defender);
@@ -3068,7 +3086,7 @@ extern "C" {
     void checkForMissingKeys(short x, short y);
     enum boltEffects boltEffectForItem(item *theItem);
     enum boltType boltForItem(item *theItem);
-    boolean zap(pos originLoc, pos targetLoc, bolt *theBolt, boolean hideDetails);
+    boolean zap(pos originLoc, pos targetLoc, bolt *theBolt, boolean hideDetails, boolean reverseBoltDir);
     boolean nextTargetAfter(short *returnX,
                             short *returnY,
                             short targetX,
@@ -3113,6 +3131,7 @@ extern "C" {
     item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind);
     void updateEncumbrance();
     short displayedArmorValue();
+    short armorValueIfUnenchanted();
     void strengthCheck(item *theItem, boolean noisy);
     void recalculateEquipmentBonuses();
     boolean equipItem(item *theItem, boolean force, item *unequipHint);
@@ -3293,6 +3312,7 @@ extern "C" {
     void checkForDungeonErrors();
 
     boolean dialogChooseFile(char *path, const char *suffix, const char *prompt);
+    void dialogCreateItemOrMonster();
     void quitImmediately();
     void dialogAlert(char *message);
     void mainBrogueJunction();

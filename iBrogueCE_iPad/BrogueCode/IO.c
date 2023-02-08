@@ -331,9 +331,9 @@ short actionMenu(short x, boolean playingBack) {
         }
 
         if (KEYBOARD_LABELS) {
-            sprintf(buttons[buttonCount].text, "  %s\\: %s[%s] Hide color effects  ",   yellowColorEscape, whiteColorEscape, rogue.trueColorMode ? "X" : " ");
+            sprintf(buttons[buttonCount].text, "  %s\\: %s[%s] Hide color effects  ",   yellowColorEscape, whiteColorEscape, rogue.trueColorMode ? " " : "X");
         } else {
-            sprintf(buttons[buttonCount].text, "  [%s] Hide color effects  ",   rogue.trueColorMode ? "X" : " ");
+            sprintf(buttons[buttonCount].text, "  [%s] Hide color effects  ",   rogue.trueColorMode ? " " : "X");
         }
         buttons[buttonCount].hotkey[0] = TRUE_COLORS_KEY;
         takeActionOurselves[buttonCount] = true;
@@ -386,9 +386,9 @@ short actionMenu(short x, boolean playingBack) {
         buttonCount++;
 
         if (KEYBOARD_LABELS) {
-            sprintf(buttons[buttonCount].text, "  %sQ: %sQuit %s  ",    yellowColorEscape, whiteColorEscape, (playingBack ? "to title screen" : "without saving"));
+            sprintf(buttons[buttonCount].text, "  %sQ: %sQuit %s  ",    yellowColorEscape, whiteColorEscape, (playingBack ? "to title screen" : "and abandon game"));
         } else {
-            sprintf(buttons[buttonCount].text, "  Quit %s  ",   (playingBack ? "to title screen" : "without saving"));
+            sprintf(buttons[buttonCount].text, "  Quit %s  ",   (playingBack ? "to title screen" : "and abandon game"));
         }
         buttons[buttonCount].hotkey[0] = QUIT_KEY;
         buttonCount++;
@@ -2691,7 +2691,7 @@ void executeKeystroke(signed long keystroke, boolean controlKey, boolean shiftKe
             if (rogue.playbackMode || serverMode) {
                 return;
             }
-            if (confirm("Suspend this game?", false)) {
+            if (confirm("Save this game and exit?", false)) {
                 saveGame();
             }
             break;
@@ -2702,7 +2702,7 @@ void executeKeystroke(signed long keystroke, boolean controlKey, boolean shiftKe
             }
             break;
         case QUIT_KEY:
-            if (confirm("Quit this game without saving?", false)) {
+            if (confirm("Quit and abandon this game? (The save will be deleted.)", false)) {
                 recordKeystroke(QUIT_KEY, false, false);
                 rogue.quit = true;
                 gameOver("Quit", true);
@@ -4168,8 +4168,8 @@ void printHelpScreen() {
         "              M  ****display old messages",
         "              G  ****toggle graphical tiles (when available)",
         "",
-        "              S  ****suspend game and quit",
-        "              Q  ****quit to title screen",
+        "              S  ****save and exit",
+        "              Q  ****quit and abandon game",
         "",
         "              \\  ****disable/enable color effects",
         "              ]  ****display/hide stealth range",
@@ -4574,13 +4574,10 @@ void highlightScreenCell(short x, short y, color *highlightColor, short strength
     storeColorComponents(displayBuffer[x][y].backColorComponents, &tempColor);
 }
 
-short estimatedArmorValue() {
-    short retVal;
-
-    retVal = ((armorTable[rogue.armor->kind].range.upperBound + armorTable[rogue.armor->kind].range.lowerBound) / 2) / 10;
-    retVal += strengthModifier(rogue.armor) / FP_FACTOR;
-    retVal -= player.status[STATUS_DONNING];
-
+// Like `armorValueIfUnenchanted` for the currently-equipped armor, but takes the penalty from
+// donning into account.
+static short estimatedArmorValue() {
+    short retVal = armorValueIfUnenchanted(rogue.armor) - player.status[STATUS_DONNING];
     return max(0, retVal);
 }
 
@@ -4597,7 +4594,7 @@ short printMonsterInfo(creature *monst, short y, boolean dim, boolean highlight)
     char buf[COLS * 2], buf2[COLS * 2], monstName[COLS], tempColorEscape[5], grayColorEscape[5];
     enum displayGlyph monstChar;
     color monstForeColor, monstBackColor, healthBarColor, tempColor;
-    short initialY, i, j, highlightStrength, displayedArmor, percent;
+    short initialY, i, j, highlightStrength, percent;
     boolean inPath;
     short oldRNG;
 
@@ -4852,15 +4849,13 @@ short printMonsterInfo(creature *monst, short y, boolean dim, boolean highlight)
                     encodeMessageColor(grayColorEscape, 0, (dim ? &darkGray : &gray));
                 }
 
-                displayedArmor = displayedArmorValue();
-
                 if (!rogue.armor || rogue.armor->flags & ITEM_IDENTIFIED || rogue.playbackOmniscience) {
 
                     sprintf(buf, "Str: %s%i%s  Armor: %i",
                             tempColorEscape,
                             rogue.strength - player.weaknessAmount,
                             grayColorEscape,
-                            displayedArmor);
+                            displayedArmorValue());
                 } else {
                     sprintf(buf, "Str: %s%i%s  Armor: %i?",
                             tempColorEscape,

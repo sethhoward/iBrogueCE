@@ -129,6 +129,11 @@ void welcome() {
         messageWithColor("Press <?> for help at any time.", &backgroundMessageColor, NO_FLAG);
     }
     flavorMessage("The doors to the dungeon slam shut behind you.");
+    
+    //BT: since we're not starting the iPad app in main.c, initialize some things here
+    rogue.wizard = false;
+    rogue.trueColorMode = true;
+    rogue.displayStealthRangeMode = false;
 }
 
 // Seed is used as the dungeon seed unless it's zero, in which case generate a new one.
@@ -376,6 +381,10 @@ void initializeRogue(uint64_t seed) {
 
     recalculateEquipmentBonuses();
 
+    if (D_OMNISCENCE) {
+        rogue.playbackOmniscience = 1;
+    }
+
     DEBUG {
         theItem = generateItem(RING, RING_CLAIRVOYANCE);
         theItem->enchant1 = max(DROWS, DCOLS);
@@ -598,7 +607,7 @@ void startLevel(short oldLevelNumber, short stairDirection) {
     //  Prepare the new level
     rogue.minersLightRadius = (DCOLS - 1) * FP_FACTOR;
     for (i = 0; i < rogue.depthLevel; i++) {
-        rogue.minersLightRadius = rogue.minersLightRadius * 85 / 100;
+        rogue.minersLightRadius = rogue.minersLightRadius * DEPTH_ACCELERATOR * 85 / 100;
     }
     rogue.minersLightRadius += FP_FACTOR * 225 / 100;
     updateColors();
